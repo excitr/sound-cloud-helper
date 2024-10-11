@@ -97,14 +97,14 @@ jobs:
 
       - name: Preview URL on Pull Request
         if: ${{ github.event_name == 'pull_request' }}
-        uses: thollander/actions-comment-pull-request@v2
+        uses: thollander/actions-comment-pull-request@v3
         with:
           message: |
             Vercel ${{ inputs.environment }} URL :rocket: : ${{ steps.deploy.outputs.preview_url }}
 
 #      - name: Node branch on Pull Request
 #        if: ${{ (github.event_name == 'pull_request') && ( inputs.environment == 'app') }}
-#        uses: thollander/actions-comment-pull-request@v2
+#        uses: thollander/actions-comment-pull-request@v3
 #        with:
 #          message: |
 #            Neon branch :elephant: : https://console.neon.tech/app/projects/${{ env.NEON_PROJECT_ID }}/branches/${{ steps.create-branch.outputs.branch_id }}
