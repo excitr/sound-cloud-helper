@@ -95,16 +95,20 @@ jobs:
         id: deploy
         run: echo preview_url=$(vercel deploy --prebuilt ${{ github.ref == 'refs/heads/main' && '--prod' || '' }} --token=${{ secrets.turbo_token }}) >> $GITHUB_OUTPUT
 
-      - name: Preview URL on Pull Request
+      - name: Add PR Comment
         if: ${{ github.event_name == 'pull_request' }}
-        uses: thollander/actions-comment-pull-request@v3
+        uses: mshick/add-pr-comment@v2
         with:
           message: |
-            Vercel ${{ inputs.environment }} URL :rocket: : ${{ steps.deploy.outputs.preview_url }}
-
-#      - name: Node branch on Pull Request
-#        if: ${{ (github.event_name == 'pull_request') && ( inputs.environment == 'app') }}
-#        uses: thollander/actions-comment-pull-request@v3
-#        with:
-#          message: |
+            Webapp URL :rocket: : ${{ steps.deploy.outputs.preview_url }}
+            Backoffice URL :office: : ${{ steps.deploy.outputs.preview_url }}
 #            Neon branch :elephant: : https://console.neon.tech/app/projects/${{ env.NEON_PROJECT_ID }}/branches/${{ steps.create-branch.outputs.branch_id }}
+          find: |
+            Webapp URL :rocket: :.*
+            Backoffice URL :office: :.*
+#            Neon branch :elephant: :.*
+          replace: |
+            Webapp URL :rocket: : ${{ steps.deploy.outputs.preview_url }}
+            Backoffice URL :office: : ${{ steps.deploy.outputs.preview_url }}
+#            Neon branch :elephant: : https://console.neon.tech/app/projects/${{ env.NEON_PROJECT_ID }}/branches/${{ steps.create-branch.outputs.branch_id }}
+
