@@ -12,7 +12,11 @@ const project = resolve(process.cwd(), 'tsconfig.json');
  */
 
 module.exports = {
-  extends: ['@vercel/style-guide/eslint/node', '@vercel/style-guide/eslint/typescript'].map(require.resolve),
+  extends: [
+    ...['@vercel/style-guide/eslint/node', '@vercel/style-guide/eslint/typescript'].map(require.resolve),
+    'plugin:deprecation/recommended',
+  ],
+  parser: '@typescript-eslint/parser',
   parserOptions: {
     project,
   },
@@ -36,10 +40,10 @@ module.exports = {
     'prefer-arrow/prefer-arrow-functions': [
       'warn',
       {
-        'disallowPrototype': true,
-        'singleReturnOnly': true
-      }
-    ]
+        disallowPrototype: true,
+        singleReturnOnly: true,
+      },
+    ],
   },
   overrides: [
     {

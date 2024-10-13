@@ -21,7 +21,9 @@ module.exports = {
       '@vercel/style-guide/eslint/next',
     ].map(require.resolve),
     'turbo',
+    'plugin:deprecation/recommended',
   ],
+  parser: '@typescript-eslint/parser',
   parserOptions: {
     project,
   },
@@ -47,10 +49,10 @@ module.exports = {
     'prefer-arrow/prefer-arrow-functions': [
       'warn',
       {
-        'disallowPrototype': true,
-        'singleReturnOnly': true
-      }
-    ]
+        disallowPrototype: true,
+        singleReturnOnly: true,
+      },
+    ],
   },
   overrides: [
     {
