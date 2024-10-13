@@ -21,7 +21,9 @@ module.exports = {
       '@vercel/style-guide/eslint/next',
     ].map(require.resolve),
     'turbo',
+    'plugin:deprecation/recommended',
   ],
+  parser: '@typescript-eslint/parser',
   parserOptions: {
     project,
   },
@@ -39,9 +41,25 @@ module.exports = {
       },
     },
   },
+  plugins: ['prefer-arrow'],
   ignorePatterns: ['node_modules/', 'dist/'],
   // add rules configurations here
   rules: {
     'import/no-default-export': 'off',
+    'prefer-arrow/prefer-arrow-functions': [
+      'warn',
+      {
+        disallowPrototype: true,
+        singleReturnOnly: true,
+      },
+    ],
   },
+  overrides: [
+    {
+      files: ['*.tsx'],
+      rules: {
+        'prefer-arrow/prefer-arrow-functions': 'off',
+      },
+    },
+  ],
 };

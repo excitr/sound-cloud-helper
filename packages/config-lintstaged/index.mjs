@@ -1,10 +1,10 @@
 export const nodeLintStagedConfig = {
-  '*.ts': ['prettier --write', 'eslint . --fix --max-warnings 0'],
+  '*.ts': ['prettier --write', 'eslint --fix --max-warnings 0'],
 };
 
 export const reactLintStagedConfig = {
   ...nodeLintStagedConfig,
-  '*.tsx': ['prettier --write', 'eslint . --fix --max-warnings 0'],
+  '*.tsx': ['prettier --write', 'eslint --fix --max-warnings 0'],
 };
 
 export const mdStagedConfig = {

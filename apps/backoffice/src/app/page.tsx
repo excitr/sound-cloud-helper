@@ -1,7 +1,8 @@
 import Image from 'next/image';
 import { Card } from '@repo/ui/card';
+import { type ReactElement } from 'react';
 
-function Gradient({ conic, className, small }: { small?: boolean; conic?: boolean; className?: string }): JSX.Element {
+function Gradient({ conic, className, small }: { small?: boolean; conic?: boolean; className?: string }): ReactElement {
   return (
     <span
       className={`absolute mix-blend-normal will-change-[filter] rounded-[100%] ${
@@ -34,7 +35,7 @@ const LINKS = [
   },
 ];
 
-export default function Page(): JSX.Element {
+export default function Page(): ReactElement {
   return (
     <main className="flex flex-col items-center justify-between min-h-screen p-24">
       <div className="z-10 items-center justify-between w-full max-w-5xl font-mono text-sm lg:flex">
