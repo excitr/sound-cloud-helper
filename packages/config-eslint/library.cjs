@@ -31,4 +31,22 @@ module.exports = {
     },
   },
   ignorePatterns: ['node_modules/', 'dist/'],
+  plugins: ['prefer-arrow'],
+  rules: {
+    'prefer-arrow/prefer-arrow-functions': [
+      'warn',
+      {
+        'disallowPrototype': true,
+        'singleReturnOnly': true
+      }
+    ]
+  },
+  overrides: [
+    {
+      files: ['*.tsx'],
+      rules: {
+        'prefer-arrow/prefer-arrow-functions': 'off',
+      },
+    },
+  ],
 };
