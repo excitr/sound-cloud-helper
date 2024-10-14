@@ -100,15 +100,13 @@ jobs:
         uses: mshick/add-pr-comment@v2
         with:
           message: |
-            Webapp URL :rocket: : ${{ steps.deploy.outputs.preview_url }}
-            Backoffice URL :office: : ${{ steps.deploy.outputs.preview_url }}
+            app URL:
+            backoffice URL:
 #            Neon branch :elephant: : https://console.neon.tech/app/projects/${{ env.NEON_PROJECT_ID }}/branches/${{ steps.create-branch.outputs.branch_id }}
+          message-id: vercel-urls
           find: |
-            Webapp URL :rocket: :.*
-            Backoffice URL :office: :.*
+            ${{inputs.app}} URL:.*
 #            Neon branch :elephant: :.*
           replace: |
-            Webapp URL :rocket: : ${{ steps.deploy.outputs.preview_url }}
-            Backoffice URL :office: : ${{ steps.deploy.outputs.preview_url }}
+            ${{inputs.app}} URL: ${{ steps.deploy.outputs.preview_url }}
 #            Neon branch :elephant: : https://console.neon.tech/app/projects/${{ env.NEON_PROJECT_ID }}/branches/${{ steps.create-branch.outputs.branch_id }}
-
