@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@repo/database'; // Assuming your Prisma instance is imported from the shared package
+import { PrismaClient } from '@repo/database'; // Import PrismaClient normally
+import type { Prisma } from '@repo/database'; // Type-only import for Prisma
 
 const prisma = new PrismaClient();
 
 // Helper function to mimic the time limit management
-const getMaxExecutionTime = () => {
+const getMaxExecutionTime = (): number => {
   const maxExecutionTime = 30; // defaulting to 30 seconds if not set
   const currentTime = Math.floor(Date.now() / 1000); // current timestamp in seconds
   const bufferTime = 10; // a shortage time like in PHP
@@ -22,7 +23,7 @@ class CrjManager {
     this.crjs = {};
   }
 
-  private async initJobs() {
+  private async initJobs(): Promise<void> {
     const crjs: Record<number, number> = {};
 
     // Query to get processes and group them by `crj`
@@ -50,20 +51,12 @@ class CrjManager {
     this.crjs = crjs;
   }
 
-  private async putProcessToCronJob(process: Process, crj_idx: number) {
-    // Update process with the crj index
-    await process.update({
-      where: { id: process.id },
-      data: { crj: crj_idx },
-    });
-  }
-
-  public async assignTasks() {
+  public async assignTasks(): Promise<void> {
     while (Math.floor(Date.now() / 1000) < this.tillTime) {
       await this.initJobs();
 
-      let totalQty = Object.values(this.crjs).reduce((acc, qty) => acc + qty, 0);
-      const processCondition = {
+      const totalQty = Object.values(this.crjs).reduce((acc, qty) => acc + qty, 0);
+      const processCondition: Prisma.ProcessFindManyArgs = {
         where: {
           crj: null,
           processStatusId: {
@@ -85,11 +78,20 @@ class CrjManager {
           },
         },
       };
-      const processes = await prisma.process.findMany(processConditiSoundCloudClienton);
+      const processes = await prisma.process.findMany(processCondition);
       const plusQty = processes.length;
 
       if (plusQty === 0) {
-        await new Promise((resolve) => setTimeout(resolve, 10000)); // sleep for 10 seconds
+        const delay = (ms: number): Promise<void> => {
+          return new Promise((resolve) => {
+            setTimeout(() => {
+              resolve(); // Resolving the promise after the timeout
+            }, ms);
+          });
+        };
+
+        // Usage
+        await delay(10000); // sleep for 10 seconds
         continue;
       }
 
@@ -101,7 +103,7 @@ class CrjManager {
       let totalTodo = plusQty;
 
       for (const crjIdx in this.crjs) {
-        let qty = this.crjs[crjIdx];
+        const qty = this.crjs[crjIdx];
         let nTodo = I - qty;
 
         if (nTodo < 0) continue;
@@ -113,7 +115,10 @@ class CrjManager {
 
         for (let i = 0; i < nTodo; i++) {
           psIdx++;
-          await this.putProcessToCronJob(processes[psIdx], parseInt(crjIdx));
+          await prisma.process.update({
+            where: { id: processes[psIdx].id },
+            data: { crj: Number(crjIdx) },
+          });
           totalTodo--;
 
           if (totalTodo === 0) break;
@@ -122,12 +127,21 @@ class CrjManager {
         if (totalTodo === 0) break;
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 10000)); // sleep for 10 seconds
+      const delay = (ms: number): Promise<void> => {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(); // Resolving the promise after the timeout
+          }, ms);
+        });
+      };
+
+      // Usage
+      await delay(10000); // sleep for 10 seconds
     }
   }
 }
 
-export async function POST() {
+export async function POST(): Promise<NextResponse> {
   // Initialize CrjManager with a value for crjQty (e.g., 50)
   const crjManager = new CrjManager(50);
   await crjManager.assignTasks();
