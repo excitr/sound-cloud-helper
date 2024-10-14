@@ -17,6 +17,20 @@ on:
       - .github/workflows/**
 
 jobs:
+  pr_comment:
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Add PR Comment
+        uses: mshick/add-pr-comment@v2
+        with:
+          message: |
+            app URL:
+            backoffice URL:
+          message-id: vercel-urls
+
   deploy:
     permissions: write-all
     strategy:
