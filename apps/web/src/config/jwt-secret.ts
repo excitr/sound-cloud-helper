@@ -1,0 +1,1 @@
+export const SECRET_TOKEN = 'soundclo_web_sch';
