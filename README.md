@@ -6,7 +6,7 @@ Increase your followers in sound cloud.
 
 ### Prerequisites
 
-- [postgres](https://www.postgresql.org/download/)
+- [mysql](https://dev.mysql.com/downloads/installer/)
 - [pnpm](https://pnpm.io/installation)
 
 ### Setup
