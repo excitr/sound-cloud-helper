@@ -1,12 +1,28 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@repo/database'; // Importing Prisma instance
+import { Prisma, prisma } from '@repo/database'; // Importing Prisma instance
 
-export async function POST(request: Request) {
+interface GetArrayFromProcessReturn {
+  id: number;
+  status: string;
+}
+
+interface ResumeLatestProcessReturn {
+  process: GetArrayFromProcessReturn;
+  count: number;
+}
+
+const processWithAccountStatus = Prisma.validator<Prisma.ProcessDefaultArgs>()({
+  include: { processStatus: true, account: true },
+  select: { id: true, processStatusId: true, accountId: true },
+});
+
+type ProcessWithaccountAndStatus = Prisma.ProcessGetPayload<typeof processWithAccountStatus>;
+
+export async function POST(request: Request): Promise<NextResponse> {
   try {
     const accountId = await getAccountId(request); // Implement this to extract account ID from the request
     return await resumeLatestProcess(accountId);
   } catch (error) {
-    console.error('Error in POST /api/resumeLatestProcess:', error);
     return NextResponse.json(
       { success: false, message: 'An error occurred while processing your request.' },
       { status: 500 },
@@ -15,88 +31,89 @@ export async function POST(request: Request) {
 }
 
 async function resumeLatestProcess(accountId: number): Promise<NextResponse> {
-  let result: any = {};
+  const result: ResumeLatestProcessReturn = {
+    process: {
+      id: 0,
+      status: '',
+    },
+    count: 0,
+  };
 
   try {
     // await prisma.$transaction(async (prisma) => {
     // Query to get the latest process
     const process = await prisma.process.findFirst({
       where: {
-        accountId: accountId,
+        accountId,
       },
       orderBy: {
         id: 'desc',
       },
-      include: {
-        account: true, // Assuming 'account' relation exists
-      },
+      ...processWithAccountStatus,
     });
 
     if (process) {
       // Check if account has enough time left to resume the process
-      if ((await timeLeft(prisma, process.account.id)) === 0) {
-        throw NextResponse.json('Not enough time credits to resume.');
+      if ((await timeLeft(process.account.id)) === 0) {
+        throw new Error('Not enough time credits to resume.');
       }
 
-      console.log('=========================');
       // Resume the process if it is paused
-      await resumeProcess(prisma, process);
+      await resumeProcess(process);
 
       // Open a new activity record
-      await openActivityRecord(prisma, accountId);
+      await openActivityRecord(accountId);
 
       // Prepare success result
-      result.process = getArrayFromProcess(process);
+      result.process = await getArrayFromProcess(process);
       result.count = 1;
-    } else {
-      result.count = 0;
     }
     // });
 
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    console.error('Error resuming process:', error);
-    throw NextResponse.json('An error occurred while resuming the process'); // Handle as necessary
+    throw new Error('An error occurred while resuming the process'); // Handle as necessary
   }
 }
 
-async function resumeProcess(prisma: any, process: any) {
-  console.log('isPaused================================', isPaused(process));
+async function resumeProcess(process: ProcessWithaccountAndStatus): Promise<void> {
   // Check if the process is paused
   if (!isPaused(process)) {
-    throw NextResponse.json(`Cannot resume: wrong status '${process.status}'`);
+    throw new Error(`Cannot resume: wrong status '${process.processStatus.name ?? ''}'`);
   }
+
+  const processStatusName = await prisma.processStatus.findFirst({
+    where: {
+      name: 'running',
+    },
+  });
 
   // Update the process status to running
   await prisma.process.update({
     where: { id: process.id },
-    data: { status: 'running' }, // Replace with your actual running status
+    data: { processStatusId: processStatusName?.id }, // Replace with your actual running status
   });
-
-  log(`Process ${process.id} resumed`);
 }
 
-function isPaused(process: any) {
-  return process.status === 'paused'; // Replace with your actual paused status
-}
+const isPaused = (process: ProcessWithaccountAndStatus): boolean => process.processStatus.name === 'paused'; // Replace with your actual paused status;
 
-async function openActivityRecord(prisma: any, accountId: number) {
+async function openActivityRecord(accountId: number): Promise<void> {
   // Close any existing activity records
-  await closeActivityRecord(prisma, accountId);
+  await closeActivityRecord(accountId);
 
   // Open a new activity record
   await prisma.activity.create({
     data: {
-      accountId: accountId,
+      accountId,
       t1: Math.floor(Date.now() / 1000), // Current timestamp in seconds
     },
   });
 }
 
-async function closeActivityRecord(prisma: any, accountId: number) {
+async function closeActivityRecord(accountId: number): Promise<void> {
   const activity = await prisma.activity.findFirst({
     where: {
-      accountId: accountId,
+      accountId,
       t2: null, // Find open activity record
     },
     orderBy: {
@@ -112,36 +129,31 @@ async function closeActivityRecord(prisma: any, accountId: number) {
   }
 }
 
-function getArrayFromProcess(process: any) {
-  return {
+const getArrayFromProcess = (process: ProcessWithaccountAndStatus): Promise<GetArrayFromProcessReturn> => {
+  return Promise.resolve({
     id: process.id,
-    status: process.status,
-    // Add more fields as necessary
-  };
-}
+    status: process.processStatus.name,
+  } as GetArrayFromProcessReturn);
+};
 
-async function timeLeft(prisma: any, accountId: number): Promise<number> {
+async function timeLeft(accountId: number): Promise<number> {
   // Implement the logic to calculate time left for the account
   // This is a placeholder and should be replaced with the actual logic
   const account = await prisma.account.findUnique({
     where: { id: accountId },
+    include: { user: true },
   });
 
   if (!account) {
-    throw NextResponse.json('Account not found');
+    throw new Error('Account not found');
   }
 
-  return account.time_left || 0; // Assuming 'time_left' is a field in your account model
-}
-
-function log(message: string) {
-  console.log(`Log: ${message}`);
-  // You can implement a proper logging mechanism if needed
+  return account.user.timeLeft ?? 0; // Assuming 'time_left' is a field in your account model
 }
 
 // Placeholder function for extracting account ID from the request
 async function getAccountId(request: Request): Promise<number> {
   // Implement your logic to retrieve account ID from the request (e.g., from headers or body)
-  const { accountId } = await request.json();
+  const { accountId } = (await request.json()) as { accountId: number };
   return accountId; // Ensure you validate this
 }
