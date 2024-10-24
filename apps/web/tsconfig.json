@@ -1,6 +1,13 @@
 {
   "extends": "@repo/typescript-config/nextjs.json",
   "compilerOptions": {
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@repo/*": ["../../packages/*"]
+    },
     "plugins": [
       {
         "name": "next"
@@ -10,10 +17,13 @@
   },
   "include": [
     "next-env.d.ts",
+    "next.config.mjs",
+    "postcss.config.cjs",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "src/env.mjs"
+    "**/*.mjs",
+    "src/**/*"
   ],
   "exclude": [
     "node_modules"

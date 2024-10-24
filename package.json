@@ -27,5 +27,8 @@
   "engines": {
     "node": ">=20"
   },
-  "name": "with-tailwind"
+  "name": "with-tailwind",
+  "dependencies": {
+    "@prisma/client": "^5.20.0"
+  }
 }

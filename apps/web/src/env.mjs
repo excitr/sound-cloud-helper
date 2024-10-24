@@ -11,7 +11,10 @@ export const env = createEnv({
    */
   server: {
     NODE_ENV: z.enum(['development', 'test', 'production']),
-    DATABASE_URL: z.string().regex(/^"?postgres(?:ql|):\/\/.*:?.*?@.*(?::.*)?\/.*/),
+    DATABASE_URL: z.string().regex(
+      /^mysql:\/\/(?<username>[^:]+):(?<password>[^@]+)@(?<host>[^:\/]+):(?<port>\d+)\/(?<database>[^\/]+)$/,
+      { message: 'Invalid DATABASE_URL. Must be a valid MySQL URL.' }
+    )
   },
 
   /**
@@ -22,6 +25,9 @@ export const env = createEnv({
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
     // Add `.min(1) on these if you want to make sure they're not empty
+    NEXT_PUBLIC_ENDPOINT :z.string().min(1).default('http://localhost:3000'),
+    ACCESS_TOKEN_SECRET:z.string().min(1).default('te4.yg7a21w.6j1'),
+    REFRESH_TOKEN_SECRET:z.string().min(1).default('|<Xk2ZX{lyhtV]q'),
   },
 
   /**
@@ -31,6 +37,9 @@ export const env = createEnv({
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
     DATABASE_URL: process.env.DATABASE_URL,
+    NEXT_PUBLIC_ENDPOINT: process.env.NEXT_PUBLIC_ENDPOINT || 'http://localhost:3000/',
+    ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
+    REFRESH_TOKEN_SECRET : process.env.REFRESH_TOKEN_SECRET
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
