@@ -10,11 +10,13 @@ export const env = createEnv({
    *  - env | grep -e EXAMPLE_1 -e EXAMPLE_2 >> apps/web/.env.production
    */
   server: {
-    NODE_ENV: z.enum(['development', 'test', 'production']),
+    ACCESS_TOKEN_SECRET:z.string().min(1).default('te4.yg7a21w.6j1'),
     DATABASE_URL: z.string().regex(
-      /^mysql:\/\/(?<username>[^:]+):(?<password>[^@]+)@(?<host>[^:\/]+):(?<port>\d+)\/(?<database>[^\/]+)$/,
+      /^mysql:\/\/(?<username>[^:]+):(?<password>[^@]+)@(?<host>[^:]+):(?<port>\d+)\/(?<database>[^/]+)$/,
       { message: 'Invalid DATABASE_URL. Must be a valid MySQL URL.' }
-    )
+    ),
+    NODE_ENV: z.enum(['development', 'test', 'production']),
+    REFRESH_TOKEN_SECRET:z.string().min(1).default('|<Xk2ZX{lyhtV]q'),
   },
 
   /**
@@ -23,10 +25,10 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
+    ACCESS_TOKEN_SECRET:z.string().min(1).default('te4.yg7a21w.6j1'),
     // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
     // Add `.min(1) on these if you want to make sure they're not empty
     NEXT_PUBLIC_ENDPOINT :z.string().min(1).default('http://localhost:3000'),
-    ACCESS_TOKEN_SECRET:z.string().min(1).default('te4.yg7a21w.6j1'),
     REFRESH_TOKEN_SECRET:z.string().min(1).default('|<Xk2ZX{lyhtV]q'),
   },
 
@@ -35,10 +37,10 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
-    NODE_ENV: process.env.NODE_ENV,
-    DATABASE_URL: process.env.DATABASE_URL,
-    NEXT_PUBLIC_ENDPOINT: process.env.NEXT_PUBLIC_ENDPOINT || 'http://localhost:3000/',
     ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
+    DATABASE_URL: process.env.DATABASE_URL,
+    NODE_ENV: process.env.NODE_ENV,
+    NEXT_PUBLIC_ENDPOINT: process.env.NEXT_PUBLIC_ENDPOINT || 'http://localhost:3000/',
     REFRESH_TOKEN_SECRET : process.env.REFRESH_TOKEN_SECRET
   },
   /**

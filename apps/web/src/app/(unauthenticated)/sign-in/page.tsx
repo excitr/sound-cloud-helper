@@ -6,20 +6,15 @@ import { Container, Button, Typography, Box, TextField } from '@mui/material';
 import { Formik, Form } from 'formik';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { logger } from '@repo/logger/src';
+import { toast } from 'react-hot-toast';
 import type { FormValues } from '@/app/modules/common/models/login';
-import { DEFAULT_HOME_PATH } from '../../../../middleware';
+import { DEFAULT_HOME_PATH } from '@/middleware';
 
 const SignInResponseSchema = z.object({
   success: z.boolean(),
   token: z.string().optional(),
   refreshToken: z.string().optional(),
-  error: z
-    .object({
-      message: z.string(),
-      fields: z.string(), // Adjust this type if you have a more specific structure
-      issues: z.array(z.string()),
-    })
-    .optional(),
+  error: z.string().optional(),
 });
 
 function Page(): React.JSX.Element {
@@ -41,8 +36,13 @@ function Page(): React.JSX.Element {
     const result = SignInResponseSchema.parse(await response.json()); // This will throw an error if validation fails
 
     if (!result.success) {
-      throw new Error(result.error?.message ?? 'Failed to login');
+      const errorMessage = typeof result.error === 'string' ? result.error : 'Failed to login';
+
+      toast.error(errorMessage);
+      throw new Error(errorMessage);
     }
+
+    toast.success('Login Successfully');
 
     const redirectUrl = searchParams.get('redirect');
     router.push(redirectUrl ?? DEFAULT_HOME_PATH);
@@ -108,6 +108,7 @@ function Page(): React.JSX.Element {
                   display: 'flex',
                   flexDirection: 'column',
                   gap: 3,
+                  mt: '20px',
                 }}
               >
                 <Box sx={{ width: '100%' }}>
@@ -115,7 +116,7 @@ function Page(): React.JSX.Element {
                     label="Enter your Email address"
                     name="email"
                     onBlur={handleBlur}
-                    onChange={handleEmailChange} // Reference the function directly
+                    onChange={handleEmailChange}
                     sx={{
                       width: '400px',
                       '& .MuiOutlinedInput-root': {
@@ -131,7 +132,7 @@ function Page(): React.JSX.Element {
                     name="password"
                     type="password"
                     onBlur={handleBlur}
-                    onChange={handlePasswordChange} // Reference the function directly
+                    onChange={handlePasswordChange}
                     sx={{
                       width: '400px',
                       '& .MuiOutlinedInput-root': {

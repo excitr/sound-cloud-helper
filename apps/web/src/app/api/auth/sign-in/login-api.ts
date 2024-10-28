@@ -6,18 +6,14 @@ import type { JwtPayload } from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import { logger } from '@repo/logger/src';
 
-const TOKEN_KEY = 'sound_cloud_token';
-const REFRESH_TOKEN_KEY = 'sound_cloud_refresh_token';
+const TOKEN_KEY = process.env.TOKEN_KEY;
+const REFRESH_TOKEN_KEY = process.env.REFRESH_TOKEN_KEY;
 
 export const generateAccessToken = (user: { id: string }): Promise<string> => {
-  const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
-
-  if (!accessTokenSecret) {
-    throw new Error('ACCESS_TOKEN_SECRET is not defined');
-  }
+  const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET ?? '';
 
   return new Promise((resolve, reject) => {
-    sign({ id: user.id }, accessTokenSecret, { expiresIn: '15m' }, (err, token) => {
+    sign({ id: user.id }, accessTokenSecret, { expiresIn: '20m' }, (err, token) => {
       if (err) {
         reject(err);
         return;
@@ -81,14 +77,14 @@ export const verifyRefreshToken = (token: string): Promise<JwtPayload> => {
   });
 };
 
-export interface APIResponce {
+export interface APIResponse {
   success: boolean;
   token?: string;
   refreshToken?: string;
   error?: string;
 }
 
-export async function getUserByEmailAndPassword(data: { email: string; password: string }): Promise<APIResponce> {
+export async function getUserByEmail(data: { email: string; password: string }): Promise<APIResponse> {
   try {
     const user = await prisma.user.findFirst({
       where: { contactEmail: data.email },
@@ -107,7 +103,7 @@ export async function getUserByEmailAndPassword(data: { email: string; password:
     if (!passwordMatch) {
       return {
         success: false,
-        error: 'Password Not Match',
+        error: 'Incorrect credentials',
       };
     }
 
@@ -115,8 +111,9 @@ export async function getUserByEmailAndPassword(data: { email: string; password:
     const refreshToken = await generateRefreshToken({ id: user.contactEmail ? user.contactEmail : '' });
 
     const cookieStore = cookies();
-    cookieStore.set(TOKEN_KEY, accessToken);
-    cookieStore.set(REFRESH_TOKEN_KEY, refreshToken);
+    TOKEN_KEY && cookieStore.set(TOKEN_KEY, accessToken);
+    REFRESH_TOKEN_KEY && cookieStore.set(REFRESH_TOKEN_KEY, refreshToken);
+
     return {
       success: true,
       token: accessToken,

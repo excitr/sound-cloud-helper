@@ -1,9 +1,8 @@
 'use server';
 
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { SignInSchema } from '@/utils/schemas/login-schemas1';
-import { getUserByEmailAndPassword } from './login-api';
+import { SignInSchema } from '@/utils/schemas/login-schemas';
+import { getUserByEmail } from './login-api';
 
 export async function POST(request: Request): Promise<NextResponse<{ success: true } | { success: false }>> {
   // Use type assertion to specify that the result of request.json() matches the expected shape
@@ -21,18 +20,11 @@ export async function POST(request: Request): Promise<NextResponse<{ success: tr
     });
   }
 
-  const result = await getUserByEmailAndPassword(parsed.data);
+  const result = await getUserByEmail(parsed.data);
 
   if (!result.success) {
-    return NextResponse.json({ success: false, error: { message: result.error } });
+    return NextResponse.json(result);
   }
-
-  const TOKEN_KEY = 'sound_cloud_token'; // Define or import this constant
-  const REFRESH_TOKEN_KEY = 'sound_cloud_refresh_token';
-
-  const cookieStore = cookies();
-  cookieStore.set(TOKEN_KEY, result.token ? result.token : '');
-  cookieStore.set(REFRESH_TOKEN_KEY, result.refreshToken ? result.refreshToken : '');
 
   return NextResponse.json({
     success: true,

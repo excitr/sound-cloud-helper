@@ -1,7 +1,15 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["**/.env.*local", "**/.env"],
-  "globalEnv": ["DATABASE_URL", "NODE_ENV", "SKIP_ENV_VALIDATION", "ACCESS_TOKEN_SECRET", "REFRESH_TOKEN_SECRET"],
+  "globalEnv": [
+    "ACCESS_TOKEN_SECRET",
+    "DATABASE_URL",
+    "NODE_ENV",
+    "REFRESH_TOKEN_SECRET",
+    "SKIP_ENV_VALIDATION",
+    "TOKEN_KEY",
+    "REFRESH_TOKEN_KEY"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
