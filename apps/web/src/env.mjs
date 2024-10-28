@@ -10,13 +10,14 @@ export const env = createEnv({
    *  - env | grep -e EXAMPLE_1 -e EXAMPLE_2 >> apps/web/.env.production
    */
   server: {
-    ACCESS_TOKEN_SECRET:z.string().min(1).default('te4.yg7a21w.6j1'),
-    DATABASE_URL: z.string().regex(
-      /^mysql:\/\/(?<username>[^:]+):(?<password>[^@]+)@(?<host>[^:]+):(?<port>\d+)\/(?<database>[^/]+)$/,
-      { message: 'Invalid DATABASE_URL. Must be a valid MySQL URL.' }
-    ),
+    ACCESS_TOKEN_SECRET: z.string().min(1).default('te4.yg7a21w.6j1'),
+    DATABASE_URL: z
+      .string()
+      .regex(/^mysql:\/\/(?<username>[^:]+):(?<password>[^@]+)@(?<host>[^:]+):(?<port>\d+)\/(?<database>[^/]+)$/, {
+        message: 'Invalid DATABASE_URL. Must be a valid MySQL URL.',
+      }),
     NODE_ENV: z.enum(['development', 'test', 'production']),
-    REFRESH_TOKEN_SECRET:z.string().min(1).default('|<Xk2ZX{lyhtV]q'),
+    REFRESH_TOKEN_SECRET: z.string().min(1).default('|<Xk2ZX{lyhtV]q'),
   },
 
   /**
@@ -25,11 +26,11 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    ACCESS_TOKEN_SECRET:z.string().min(1).default('te4.yg7a21w.6j1'),
+    ACCESS_TOKEN_SECRET: z.string().min(1).default('te4.yg7a21w.6j1'),
     // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
     // Add `.min(1) on these if you want to make sure they're not empty
-    NEXT_PUBLIC_ENDPOINT :z.string().min(1).default('http://localhost:3000'),
-    REFRESH_TOKEN_SECRET:z.string().min(1).default('|<Xk2ZX{lyhtV]q'),
+    NEXT_PUBLIC_ENDPOINT: z.string().min(1).default('http://localhost:3000'),
+    REFRESH_TOKEN_SECRET: z.string().min(1).default('|<Xk2ZX{lyhtV]q'),
   },
 
   /**
@@ -41,7 +42,7 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_ENDPOINT: process.env.NEXT_PUBLIC_ENDPOINT || 'http://localhost:3000/',
-    REFRESH_TOKEN_SECRET : process.env.REFRESH_TOKEN_SECRET
+    REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
