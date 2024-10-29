@@ -26,9 +26,5 @@ export async function POST(request: Request): Promise<NextResponse<{ success: tr
     return NextResponse.json(result);
   }
 
-  return NextResponse.json({
-    success: true,
-    token: result.token,
-    refreshToken: result.refreshToken,
-  });
+  return NextResponse.json(result);
 }

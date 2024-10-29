@@ -28,7 +28,7 @@ export const env = createEnv({
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
     // Add `.min(1) on these if you want to make sure they're not empty
-    NEXT_PUBLIC_ENDPOINT: z.string().min(1).default('http://localhost:3000'),
+    
   },
 
   /**
@@ -39,7 +39,6 @@ export const env = createEnv({
     ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
-    NEXT_PUBLIC_ENDPOINT: process.env.NEXT_PUBLIC_ENDPOINT || 'http://localhost:3000/',
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
   },
   /**
