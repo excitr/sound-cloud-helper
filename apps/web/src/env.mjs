@@ -28,7 +28,6 @@ export const env = createEnv({
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
     // Add `.min(1) on these if you want to make sure they're not empty
-    
   },
 
   /**
