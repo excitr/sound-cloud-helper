@@ -7,9 +7,8 @@ import { Formik, Form } from 'formik';
 import { useRouter } from 'next/navigation';
 import { logger } from '@repo/logger';
 import { toast } from 'react-hot-toast';
-import type { FormValues } from '@/app/modules/common/models/login';
 import { DEFAULT_HOME_PATH } from '@/middleware';
-import { SignInSchema } from '@/utils/schemas/login-schemas';
+import { SignInSchema, type SignInSchemaType } from '@/utils/schemas/login-schemas';
 
 const SignInResponseSchema = z.object({
   success: z.boolean(),
@@ -22,7 +21,7 @@ function Page(): React.JSX.Element {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const handleFormSubmit = async (values: FormValues): Promise<void> => {
+  const handleFormSubmit = async (values: SignInSchemaType): Promise<void> => {
     setLoading(true);
     const response = await fetch('/api/auth/sign-in', {
       method: 'POST',
@@ -51,7 +50,7 @@ function Page(): React.JSX.Element {
     router.push(DEFAULT_HOME_PATH);
   };
 
-  const initialValues: FormValues = {
+  const initialValues: SignInSchemaType = {
     email: '',
     password: '',
   };
@@ -69,7 +68,7 @@ function Page(): React.JSX.Element {
         You must log in to view the page at /web-sch.
       </Typography>
 
-      <Formik<FormValues>
+      <Formik<SignInSchemaType>
         initialValues={initialValues}
         onSubmit={handleFormSubmit}
         validate={(values) => {
