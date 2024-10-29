@@ -5,7 +5,7 @@ import { sign, verify } from 'jsonwebtoken';
 import type { JwtPayload } from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import { logger } from '@repo/logger';
-import { TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/app/modules/common/constant';
+import { TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/app/modules/constant';
 import { env } from '@/env.mjs';
 
 export const generateAccessToken = (user: { id: string }): Promise<string> => {

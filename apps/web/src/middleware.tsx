@@ -1,7 +1,7 @@
 import { jwtVerify } from 'jose';
 import { NextResponse, type NextRequest } from 'next/server';
 import { logger } from '@repo/logger';
-import { TOKEN_KEY } from './app/modules/common/constant';
+import { TOKEN_KEY } from './app/modules/constant';
 import { env } from './env.mjs';
 
 export const DEFAULT_HOME_PATH = '/authorisation';

@@ -22,9 +22,5 @@ export async function POST(request: Request): Promise<NextResponse<{ success: tr
 
   const result = await getUserByEmail(parsed.data);
 
-  if (!result.success) {
-    return NextResponse.json(result);
-  }
-
   return NextResponse.json(result);
 }
