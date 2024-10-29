@@ -10,16 +10,14 @@ export const env = createEnv({
    *  - env | grep -e EXAMPLE_1 -e EXAMPLE_2 >> apps/web/.env.production
    */
   server: {
-    ACCESS_TOKEN_SECRET: z.string().min(1).default('te4.yg7a21w.6j1'),
+    ACCESS_TOKEN_SECRET: z.string().min(1).default('access_token_secret'),
     DATABASE_URL: z
       .string()
       .regex(/^mysql:\/\/(?<username>[^:]+):(?<password>[^@]+)@(?<host>[^:]+):(?<port>\d+)\/(?<database>[^/]+)$/, {
         message: 'Invalid DATABASE_URL. Must be a valid MySQL URL.',
       }),
     NODE_ENV: z.enum(['development', 'test', 'production']),
-    REFRESH_TOKEN_SECRET: z.string().min(1).default('|<Xk2ZX{lyhtV]q'),
-    TOKEN_KEY : z.string().min(1).default('sound_cloud_helper_token'),
-    REFRESH_TOKEN_KEY:z.string().min(1).default('sound_cloud_helper_refresh_token'),
+    REFRESH_TOKEN_SECRET: z.string().min(1).default('refresh_token_secret'),
   },
 
   /**

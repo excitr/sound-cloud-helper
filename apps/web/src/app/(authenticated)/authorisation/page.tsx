@@ -6,7 +6,7 @@ function SoundCloudAuth(): React.JSX.Element {
   return (
     <Box
       sx={{
-        backgroundImage: 'url(/bg.png)', // Your image is now referenced from the public folder
+        backgroundImage: 'url(/bg.avif)', // Your image is now referenced from the public folder
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         height: '100vh',
@@ -45,7 +45,7 @@ function SoundCloudAuth(): React.JSX.Element {
           }}
         >
           <Image
-            src="/souldCloudlogo.jpg" // Ensure the image is inside the 'public' folder
+            src="/souldCloudlogo.svg" // Ensure the image is inside the 'public' folder
             alt="SoundCloud"
             width={24} // Set width and height
             height={24}

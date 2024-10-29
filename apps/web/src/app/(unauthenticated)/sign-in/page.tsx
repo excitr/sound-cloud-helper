@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { Container, Button, Typography, Box, TextField, CircularProgress } from '@mui/material';
 import { Formik, Form } from 'formik';
 import { useRouter } from 'next/navigation';
-import { logger } from '@repo/logger/src';
+import { logger } from '@repo/logger';
 import { toast } from 'react-hot-toast';
 import type { FormValues } from '@/app/modules/common/models/login';
 import { DEFAULT_HOME_PATH } from '@/middleware';

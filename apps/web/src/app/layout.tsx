@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   icons: {
     icon: '/souldCloudlogo.ico', // path relative to the `public` folder
     shortcut: '/souldCloudlogo.ico',
-    apple: '/souldCloudlogo.png', // for Apple touch icons
+    apple: '/souldCloudlogo.svg', // for Apple touch icons
   },
 };
 

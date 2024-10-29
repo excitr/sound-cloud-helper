@@ -6,7 +6,7 @@ function Page(): React.JSX.Element {
   return (
     <Box
       sx={{
-        backgroundImage: 'url(/bg.png)', // Your image is now referenced from the public folder
+        backgroundImage: 'url(/bg.avif)', // Your image is now referenced from the public folder
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         height: '100vh',
