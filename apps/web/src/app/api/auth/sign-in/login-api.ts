@@ -6,9 +6,10 @@ import type { JwtPayload } from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import { logger } from '@repo/logger/src';
 import { TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/app/modules/common/constant';
+import { env } from '@/env.mjs';
 
 export const generateAccessToken = (user: { id: string }): Promise<string> => {
-  const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
+  const accessTokenSecret = env.ACCESS_TOKEN_SECRET;
 
   if (!accessTokenSecret) {
     return Promise.reject(new Error('ACCESS_TOKEN_SECRET is not defined'));
@@ -30,7 +31,7 @@ export const generateAccessToken = (user: { id: string }): Promise<string> => {
 };
 
 export const generateRefreshToken = (user: { id: string }): Promise<string> => {
-  const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
+  const refreshTokenSecret = env.REFRESH_TOKEN_SECRET;
 
   if (!refreshTokenSecret) {
     return Promise.reject(new Error('REFRESH_TOKEN_SECRET is not defined'));
@@ -52,7 +53,7 @@ export const generateRefreshToken = (user: { id: string }): Promise<string> => {
 };
 
 export const verifyAccessToken = (token: string): string | JwtPayload => {
-  const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
+  const accessTokenSecret = env.ACCESS_TOKEN_SECRET;
 
   if (!accessTokenSecret) {
     throw new Error('ACCESS_TOKEN_SECRET is not defined');
@@ -62,7 +63,7 @@ export const verifyAccessToken = (token: string): string | JwtPayload => {
 };
 
 export const verifyRefreshToken = (token: string): Promise<JwtPayload> => {
-  const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
+  const refreshTokenSecret = env.REFRESH_TOKEN_SECRET;
 
   if (!refreshTokenSecret) {
     throw new Error('REFRESH_TOKEN_SECRET is not defined');
