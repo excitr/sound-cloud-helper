@@ -1,14 +1,15 @@
 'use client';
 
 import { z } from 'zod';
-import React from 'react';
-import { Container, Button, Typography, Box, TextField } from '@mui/material';
+import React, { useState } from 'react';
+import { Container, Button, Typography, Box, TextField, CircularProgress } from '@mui/material';
 import { Formik, Form } from 'formik';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { logger } from '@repo/logger/src';
 import { toast } from 'react-hot-toast';
 import type { FormValues } from '@/app/modules/common/models/login';
 import { DEFAULT_HOME_PATH } from '@/middleware';
+import { SignInSchema } from '@/utils/schemas/login-schemas';
 
 const SignInResponseSchema = z.object({
   success: z.boolean(),
@@ -18,10 +19,11 @@ const SignInResponseSchema = z.object({
 });
 
 function Page(): React.JSX.Element {
-  const searchParams = useSearchParams();
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const handleFormSubmit = async (values: FormValues): Promise<void> => {
+    setLoading(true);
     const response = await fetch('/api/auth/sign-in', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -30,22 +32,23 @@ function Page(): React.JSX.Element {
 
     // Ensure to check the response status before parsing
     if (!response.ok) {
+      setLoading(false);
       throw new Error('Network response was not ok');
     }
 
     const result = SignInResponseSchema.parse(await response.json()); // This will throw an error if validation fails
 
     if (!result.success) {
-      const errorMessage = typeof result.error === 'string' ? result.error : 'Failed to login';
+      setLoading(false);
+      const errorMessage = typeof result.error === 'string' ? result.error : 'Incorrect credentials';
 
       toast.error(errorMessage);
       throw new Error(errorMessage);
     }
-
+    setLoading(false);
     toast.success('Login Successfully');
 
-    const redirectUrl = searchParams.get('redirect');
-    router.push(redirectUrl ?? DEFAULT_HOME_PATH);
+    router.push(DEFAULT_HOME_PATH);
   };
 
   const initialValues: FormValues = {
@@ -66,13 +69,28 @@ function Page(): React.JSX.Element {
         You must log in to view the page at /web-sch.
       </Typography>
 
-      <Formik<FormValues> initialValues={initialValues} onSubmit={handleFormSubmit}>
-        {({ handleBlur, handleSubmit, setFieldValue }) => {
+      <Formik<FormValues>
+        initialValues={initialValues}
+        onSubmit={handleFormSubmit}
+        validate={(values) => {
+          const result = SignInSchema.safeParse(values);
+          if (!result.success) {
+            const errors: Record<string, string> = {};
+            result.error.errors.forEach((err) => {
+              if (err.path.length > 0) {
+                errors[err.path[0]] = err.message;
+              }
+            });
+            return errors;
+          }
+          return {};
+        }}
+      >
+        {({ handleBlur, handleSubmit, setFieldValue, errors, touched }) => {
           const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
             void setFieldValue('email', e.target.value).catch((err: unknown) => {
               if (err instanceof Error) {
-                // Handle the error appropriately if it's an instance of Error
-                logger.error('Error setting email:', err.message); // or use logger.error
+                logger.error('Error setting email:', err.message);
               } else {
                 // Handle unexpected error types
                 logger.error('Unexpected error:', err);
@@ -83,8 +101,7 @@ function Page(): React.JSX.Element {
           const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
             void setFieldValue('password', e.target.value).catch((err: unknown) => {
               if (err instanceof Error) {
-                // Handle the error appropriately if it's an instance of Error
-                logger.error('Error setting password:', err.message); // or use logger.error
+                logger.error('Error setting password:', err.message);
               } else {
                 // Handle unexpected error types
                 logger.error('Unexpected error:', err);
@@ -123,6 +140,8 @@ function Page(): React.JSX.Element {
                         borderRadius: '65px',
                       },
                     }}
+                    error={Boolean(touched.email && errors.email)}
+                    helperText={touched.email ? errors.email : null}
                   />
                 </Box>
 
@@ -139,6 +158,8 @@ function Page(): React.JSX.Element {
                         borderRadius: '65px',
                       },
                     }}
+                    error={Boolean(touched.password && errors.password)}
+                    helperText={touched.password ? errors.password : null}
                   />
                 </Box>
 
@@ -154,16 +175,17 @@ function Page(): React.JSX.Element {
                       fullWidth
                       type="submit"
                       variant="contained"
+                      disabled={loading}
                       style={{
                         marginTop: '16px',
-                        backgroundColor: '#FF5722',
+                        backgroundColor: loading ? '#ccc' : '#FF5722',
                         color: '#fff',
                         height: '50px',
                         fontSize: '16px',
                         borderRadius: '65px',
                       }}
                     >
-                      Login
+                      {loading ? <CircularProgress size={24} color="inherit" /> : 'Login'}
                     </Button>
                   </Box>
                 </Box>

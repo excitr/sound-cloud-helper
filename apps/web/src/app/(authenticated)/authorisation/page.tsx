@@ -49,6 +49,7 @@ function SoundCloudAuth(): React.JSX.Element {
             alt="SoundCloud"
             width={24} // Set width and height
             height={24}
+            unoptimized
             style={{ marginRight: '8px' }} // You can still apply styling
           />
           <Typography variant="body1" component="span" sx={{ mr: '5px' }}>

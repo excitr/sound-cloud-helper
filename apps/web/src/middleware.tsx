@@ -1,8 +1,8 @@
 import { jwtVerify } from 'jose';
 import { NextResponse, type NextRequest } from 'next/server';
 import { logger } from '@repo/logger';
+import { TOKEN_KEY } from './app/modules/common/constant';
 
-const TOKEN_KEY = process.env.TOKEN_KEY;
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
 
 export const DEFAULT_HOME_PATH = '/authorisation';
@@ -11,11 +11,11 @@ const publicPaths = ['/', '/home'];
 const authPaths = ['/sign-in', '/sign-up', '/forgot-password', '/reset-password'];
 
 export const config = {
-  matcher: ['/((?!api/auth|public|_next/static|_next/image|static|favicon.ico|bg.png).*)'],
+  matcher: ['/((?!api/auth|public|_next/static|_next/image|static|souldCloudlogo.ico|bg.png).*)'],
 };
 
 export async function middleware(request: NextRequest): Promise<NextResponse> {
-  const token = TOKEN_KEY && request.cookies.get(TOKEN_KEY)?.value;
+  const token = request.cookies.get(TOKEN_KEY)?.value;
 
   // Refresh user's JWT if invalid (except if signing out)
   if (request.nextUrl.pathname !== '/api/auth/sign-out' && token) {

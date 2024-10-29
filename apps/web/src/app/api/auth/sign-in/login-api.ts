@@ -5,12 +5,14 @@ import { sign, verify } from 'jsonwebtoken';
 import type { JwtPayload } from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import { logger } from '@repo/logger/src';
-
-const TOKEN_KEY = process.env.TOKEN_KEY;
-const REFRESH_TOKEN_KEY = process.env.REFRESH_TOKEN_KEY;
+import { TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/app/modules/common/constant';
 
 export const generateAccessToken = (user: { id: string }): Promise<string> => {
-  const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET ?? '';
+  const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
+
+  if (!accessTokenSecret) {
+    return Promise.reject(new Error('ACCESS_TOKEN_SECRET is not defined'));
+  }
 
   return new Promise((resolve, reject) => {
     sign({ id: user.id }, accessTokenSecret, { expiresIn: '20m' }, (err, token) => {
@@ -111,8 +113,8 @@ export async function getUserByEmail(data: { email: string; password: string }):
     const refreshToken = await generateRefreshToken({ id: user.contactEmail ? user.contactEmail : '' });
 
     const cookieStore = cookies();
-    TOKEN_KEY && cookieStore.set(TOKEN_KEY, accessToken);
-    REFRESH_TOKEN_KEY && cookieStore.set(REFRESH_TOKEN_KEY, refreshToken);
+    cookieStore.set(TOKEN_KEY, accessToken);
+    cookieStore.set(REFRESH_TOKEN_KEY, refreshToken);
 
     return {
       success: true,

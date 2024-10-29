@@ -18,6 +18,8 @@ export const env = createEnv({
       }),
     NODE_ENV: z.enum(['development', 'test', 'production']),
     REFRESH_TOKEN_SECRET: z.string().min(1).default('|<Xk2ZX{lyhtV]q'),
+    TOKEN_KEY : z.string().min(1).default('sound_cloud_helper_token'),
+    REFRESH_TOKEN_KEY:z.string().min(1).default('sound_cloud_helper_refresh_token'),
   },
 
   /**
@@ -26,11 +28,9 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    ACCESS_TOKEN_SECRET: z.string().min(1).default('te4.yg7a21w.6j1'),
     // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
     // Add `.min(1) on these if you want to make sure they're not empty
     NEXT_PUBLIC_ENDPOINT: z.string().min(1).default('http://localhost:3000'),
-    REFRESH_TOKEN_SECRET: z.string().min(1).default('|<Xk2ZX{lyhtV]q'),
   },
 
   /**
