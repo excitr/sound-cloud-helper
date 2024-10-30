@@ -10,8 +10,14 @@ export const env = createEnv({
    *  - env | grep -e EXAMPLE_1 -e EXAMPLE_2 >> apps/web/.env.production
    */
   server: {
+    ACCESS_TOKEN_SECRET: z.string().min(1).default('access_token_secret'),
+    DATABASE_URL: z
+      .string()
+      .regex(/^mysql:\/\/(?<username>[^:]+):(?<password>[^@]+)@(?<host>[^:]+):(?<port>\d+)\/(?<database>[^/]+)$/, {
+        message: 'Invalid DATABASE_URL. Must be a valid MySQL URL.',
+      }),
     NODE_ENV: z.enum(['development', 'test', 'production']),
-    DATABASE_URL: z.string().regex(/^"?postgres(?:ql|):\/\/.*:?.*?@.*(?::.*)?\/.*/),
+    REFRESH_TOKEN_SECRET: z.string().min(1).default('refresh_token_secret'),
   },
 
   /**
@@ -29,8 +35,10 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
-    NODE_ENV: process.env.NODE_ENV,
+    ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
     DATABASE_URL: process.env.DATABASE_URL,
+    NODE_ENV: process.env.NODE_ENV,
+    REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
