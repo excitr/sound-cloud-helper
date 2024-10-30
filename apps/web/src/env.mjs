@@ -11,6 +11,9 @@ export const env = createEnv({
    */
   server: {
     ACCESS_TOKEN_SECRET: z.string().min(1).default('access_token_secret'),
+    CLINT_ID: z.string().min(1).default('client_id'),
+    CLIENT_SECRET: z.string().min(1).default('client_secret'),
+    CODE_VERIFIER : z.string().min(1).default('code_verifier'),
     DATABASE_URL: z
       .string()
       .regex(/^mysql:\/\/(?<username>[^:]+):(?<password>[^@]+)@(?<host>[^:]+):(?<port>\d+)\/(?<database>[^/]+)$/, {
@@ -18,6 +21,7 @@ export const env = createEnv({
       }),
     NODE_ENV: z.enum(['development', 'test', 'production']),
     REFRESH_TOKEN_SECRET: z.string().min(1).default('refresh_token_secret'),
+    REDIRECT_URL : z.string().min(1).default('redirect_uri'),
   },
 
   /**
@@ -36,8 +40,12 @@ export const env = createEnv({
    */
   runtimeEnv: {
     ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
+    CLINT_ID : process.env.CLINT_ID,
+    CLIENT_SECRET : process.env.CLIENT_SECRET,
+    CODE_VERIFIER : process.env.CODE_VERIFIER,
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
+    REDIRECT_URL : process.env.REDIRECT_URL,
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
   },
   /**
