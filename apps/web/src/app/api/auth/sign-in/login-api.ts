@@ -113,7 +113,7 @@ export async function getUserByEmail(data: { email: string; password: string }):
     const accessToken = await generateAccessToken({ id: user.contactEmail ? user.contactEmail : '' });
     const refreshToken = await generateRefreshToken({ id: user.contactEmail ? user.contactEmail : '' });
 
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     cookieStore.set(TOKEN_KEY, accessToken);
     cookieStore.set(REFRESH_TOKEN_KEY, refreshToken);
 
