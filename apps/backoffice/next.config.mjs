@@ -1,9 +1,7 @@
 /** @type {import('next').NextConfig} */
 const config = {
-  experimental: {
-    serverComponentsExternalPackages: ['pino'],
-  },
   reactStrictMode: true,
+  serverExternalPackages: ['pino'],
   transpilePackages: ['@repo/ui'],
 };
 
