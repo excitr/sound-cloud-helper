@@ -526,13 +526,15 @@ model UserRole {
   @@map("user_role")
 }
 
-model SoundCloudToken {
-  id           Int     @id @default(autoincrement())
-  accessToken  String? @db.MediumText
-  expiresIn    Int
-  refreshToken String? @map("refresh_token") @db.VarChar(16)
+model SoundCloudAccount {
+  id               Int      @id @default(autoincrement())
+  access_token     String
+  refresh_token    String
+  user_id          Int
+  token_created_at DateTime @default(now())
+  token_updated_at DateTime @default(now())
 
-  @@map("SoundCloudToken")
+  @@map("sound_cloud_account")
 }
 
 enum AccountPaymentPaymentActive {
