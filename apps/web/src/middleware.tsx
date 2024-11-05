@@ -1,7 +1,7 @@
 import { jwtVerify } from 'jose';
 import { NextResponse, type NextRequest } from 'next/server';
 import { logger } from '@repo/logger';
-import { TOKEN_KEY } from './app/modules/constant';
+import { TOKEN_KEY, REFRESH_TOKEN_KEY } from './app/modules/constant';
 import { env } from './env.mjs';
 
 export const DEFAULT_HOME_PATH = '/authorisation';
@@ -15,6 +15,7 @@ export const config = {
 
 export async function middleware(request: NextRequest): Promise<NextResponse> {
   const token = request.cookies.get(TOKEN_KEY)?.value;
+  const refreshToken = request.cookies.get(REFRESH_TOKEN_KEY)?.value;
 
   // Refresh user's JWT if invalid (except if signing out)
   if (request.nextUrl.pathname !== '/api/auth/sign-out' && token) {
@@ -23,6 +24,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
       await jwtVerify(token, new TextEncoder().encode(ACCESS_TOKEN_SECRET));
     } catch (err) {
       logger.error(err);
+      return tryRefreshToken(err, refreshToken, request);
     }
   }
 
@@ -48,4 +50,23 @@ const isPublic = (path: string): boolean => {
 
 const isAuth = (path: string): boolean => {
   return authPaths.includes(path);
+};
+
+const signOut = (request: NextRequest): NextResponse => {
+  const signOutUrl = new URL('/api/auth/sign-out', request.url);
+  signOutUrl.searchParams.set('redirect', `${request.nextUrl.pathname}${request.nextUrl.search}`);
+  return NextResponse.redirect(signOutUrl);
+};
+
+const tryRefreshToken = (
+  err: unknown,
+  refreshToken: string | undefined,
+  request: NextRequest,
+): Promise<NextResponse> => {
+  if (err && typeof err === 'object' && 'code' in err && err.code === 'ERR_JWT_EXPIRED' && refreshToken) {
+    // TO-DO: write code for refresh token
+    return Promise.resolve(signOut(request)); // Wrap in Promise
+  }
+  logger.error(err);
+  return Promise.resolve(signOut(request));
 };

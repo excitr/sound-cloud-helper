@@ -8,8 +8,8 @@
     "CODE_VERIFIER",
     "DATABASE_URL",
     "NODE_ENV",
-    "REDIRECT_URL",
     "REFRESH_TOKEN_SECRET",
+    "REDIRECT_URL",
     "SKIP_ENV_VALIDATION"
   ],
   "tasks": {
