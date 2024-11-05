@@ -133,7 +133,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     });
 
     const inputData: Prisma.SoundCloudAccountCreateInput = {
-      user_id: userId,
+      userId: Number(userId),
       access_token: tokenInfo.access_token,
       refresh_token: tokenInfo.refresh_token,
       soundCloudAccountId: Number(meData.id),
