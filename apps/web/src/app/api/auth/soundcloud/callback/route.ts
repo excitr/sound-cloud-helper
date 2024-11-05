@@ -41,17 +41,17 @@ interface MeData {
   // Add other properties based on the actual response structure
 }
 
-const getUserIdFromCookie = (): Promise<number> => {
-  const cookieStore = cookies();
+const getUserIdFromCookie = async (): Promise<number> => {
+  const cookieStore = await cookies(); // Await the promise returned by cookies()
   const userData = cookieStore.get(USER_ID);
 
   if (userData) {
     const decoded = verify(userData.value, env.ACCESS_TOKEN_SECRET) as CustomJwtPayload;
     logger.info(decoded, 'Decoded ID:');
-    return Promise.resolve(decoded.id); // Return a resolved promise with the user ID
+    return decoded.id; // Directly return the user ID
   }
 
-  return Promise.resolve(0); // Return a resolved promise with 0
+  return 0; // Return 0 if no userData is found
 };
 
 const fetchTokenInfo = async (authorizationCode: string): Promise<TokenInfo> => {

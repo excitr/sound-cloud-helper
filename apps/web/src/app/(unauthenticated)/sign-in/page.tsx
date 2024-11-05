@@ -39,7 +39,7 @@ function Page(): React.JSX.Element {
     }
 
     const result = SignInResponseSchema.parse(await response.json()); // This will throw an error if validation fails
-
+    logger.info(result, 'result');
     if (!result.success) {
       setLoading(false);
       const errorMessage = typeof result.error === 'string' ? result.error : 'Incorrect credentials';

@@ -2,8 +2,8 @@
 import { prisma } from '@repo/database';
 import { compare } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
-import { cookies } from 'next/headers';
 import { logger } from '@repo/logger';
+import { NextResponse } from 'next/server';
 import { TOKEN_KEY, REFRESH_TOKEN_KEY, USER_ID } from '@/app/modules/constant';
 import { env } from '@/env.mjs';
 import { generateAccessToken, generateRefreshToken } from './login-helper';
@@ -30,7 +30,7 @@ export async function getUserByEmail(data: { email: string; password: string }):
       };
     }
 
-    const passwordMatch = await compare(data.password, user.password ? user.password : '');
+    const passwordMatch = await compare(data.password, user.password ?? '');
 
     if (!passwordMatch) {
       return {
@@ -39,22 +39,30 @@ export async function getUserByEmail(data: { email: string; password: string }):
       };
     }
 
-    const accessToken = generateAccessToken({ id: user.contactEmail ? user.contactEmail : '' });
-    const refreshToken = generateRefreshToken({ id: user.contactEmail ? user.contactEmail : '' });
+    const accessToken = generateAccessToken({ id: user.contactEmail ?? '' });
+    const refreshToken = generateRefreshToken({ id: user.contactEmail ?? '' });
 
-    const cookieStore = cookies();
-    cookieStore.set(TOKEN_KEY, accessToken, { httpOnly: true, secure: true });
-    cookieStore.set(REFRESH_TOKEN_KEY, refreshToken, { httpOnly: true, secure: true });
-    cookieStore.set(USER_ID, sign({ id: user.id }, env.ACCESS_TOKEN_SECRET), { httpOnly: true, secure: true });
+    // Create a response to set cookies
+    const response = NextResponse.json({
+      success: true,
+      token: accessToken,
+      refreshToken,
+      id: user.id,
+    });
+
+    // Set tokens in cookies
+    response.cookies.set(TOKEN_KEY, accessToken, { httpOnly: true, secure: true });
+    response.cookies.set(REFRESH_TOKEN_KEY, refreshToken, { httpOnly: true, secure: true });
+    response.cookies.set(USER_ID, sign({ id: user.id }, env.ACCESS_TOKEN_SECRET), { httpOnly: true, secure: true });
 
     return {
       success: true,
       token: accessToken,
       refreshToken,
       id: user.id,
-    };
+    }; // Return the response with cookies set
   } catch (error) {
-    logger.error('error', error);
+    logger.error('Error:', error);
     return {
       success: false,
     };
