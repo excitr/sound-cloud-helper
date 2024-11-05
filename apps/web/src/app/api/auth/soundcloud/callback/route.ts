@@ -8,11 +8,6 @@ import { type JwtPayload, verify } from 'jsonwebtoken';
 import { env } from '@/env.mjs';
 import { GRANT_TYPE, TOKEN_URL, USER_ID } from '@/app/modules/constant.ts';
 
-const clientId = env.CLINT_ID;
-const clientSecret = env.CLIENT_SECRET;
-const redirectUri = env.REDIRECT_URL;
-const codeVerifier = env.CODE_VERIFIER;
-
 const HTTP_STATUS = {
   BAD_REQUEST: 400,
   UNAUTHORIZED: 401,
@@ -61,14 +56,13 @@ const getUserIdFromCookie = (): Promise<number> => {
 
 const fetchTokenInfo = async (authorizationCode: string): Promise<TokenInfo> => {
   const data = new URLSearchParams({
-    client_id: clientId,
-    client_secret: clientSecret,
+    client_id: env.CLINT_ID,
+    client_secret: env.CLIENT_SECRET,
     code: authorizationCode,
-    redirect_uri: redirectUri,
+    redirect_uri: env.REDIRECT_URL,
     grant_type: GRANT_TYPE,
-    code_verifier: codeVerifier,
+    code_verifier: env.CODE_VERIFIER,
   });
-
   const response = await fetch(TOKEN_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
