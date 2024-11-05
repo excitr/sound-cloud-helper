@@ -1,17 +1,19 @@
+import { type NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-import { type NextRequest } from 'next/server';
 import { env } from '@/env.mjs';
 import { TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/app/modules/constant';
 
-export function GET(request: NextRequest): void {
-  const cookieStore = cookies();
-  cookieStore.delete(TOKEN_KEY);
+export async function GET(request: NextRequest): Promise<NextResponse> {
+  const cookieStore = await cookies(); // Await the promise returned by cookies()
+  cookieStore.delete(TOKEN_KEY); // Now you can use delete
   cookieStore.delete(REFRESH_TOKEN_KEY);
+
   const url = new URL(`${env.NEXT_PUBLIC_ENDPOINT}/sign-in`);
   const redirectUrl = request.nextUrl.searchParams.get('redirect');
+
   if (redirectUrl) {
     url.searchParams.set('redirect', redirectUrl);
   }
-  redirect(url.toString());
+
+  return NextResponse.redirect(url); // Use NextResponse.redirect for proper redirection
 }
