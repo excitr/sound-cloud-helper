@@ -527,12 +527,14 @@ model UserRole {
 }
 
 model SoundCloudAccount {
-  id               Int      @id @default(autoincrement())
-  access_token     String
-  refresh_token    String
-  user_id          Int
-  token_created_at DateTime @default(now())
-  token_updated_at DateTime @default(now())
+  id                  Int      @id @default(autoincrement())
+  access_token        String
+  refresh_token       String
+  user_id             Int
+  soundCloudAccountId Int
+  username            String
+  token_created_at    DateTime @default(now())
+  token_updated_at    DateTime @default(now())
 
   @@map("sound_cloud_account")
 }
