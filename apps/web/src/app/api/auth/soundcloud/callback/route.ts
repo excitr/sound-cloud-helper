@@ -13,77 +13,136 @@ const clientSecret = env.CLIENT_SECRET;
 const redirectUri = env.REDIRECT_URL;
 const codeVerifier = env.CODE_VERIFIER;
 
+const HTTP_STATUS = {
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  INTERNAL_SERVER_ERROR: 500,
+  SUCCESS: 200,
+};
+
 interface TokenInfo {
   access_token: string;
   expires_in: number;
-  refresh_token: string; // Optional, if not always present
+  refresh_token: string;
 }
 
 interface CustomJwtPayload extends JwtPayload {
   id: number;
 }
 
-export async function GET(request: Request): Promise<NextResponse> {
-  const { searchParams } = new URL(request.url);
-  const authorizationCode = searchParams.get('code');
+interface SoundCloudAccount {
+  id: number;
+  soundCloudAccountId: number;
+}
 
-  let userId = 0;
+const logAndRespondError = (error: string, status: number): NextResponse<{ error: string }> => {
+  logger.error(error);
+  return NextResponse.json({ error }, { status });
+};
 
+interface MeData {
+  id: number;
+  username: string;
+  // Add other properties based on the actual response structure
+}
+
+const getUserIdFromCookie = (): Promise<number> => {
   const cookieStore = cookies();
   const userData = cookieStore.get(USER_ID);
+
   if (userData) {
-    const decoded = verify(userData.value, env.ACCESS_TOKEN_SECRET) as JwtPayload;
-    const payload = decoded as CustomJwtPayload;
-
-    userId = payload.id;
+    const decoded = verify(userData.value, env.ACCESS_TOKEN_SECRET) as CustomJwtPayload;
     logger.info(decoded, 'Decoded ID:');
+    return Promise.resolve(decoded.id); // Return a resolved promise with the user ID
   }
 
-  if (!authorizationCode) {
-    return NextResponse.json({ error: 'Authorization code is missing' }, { status: 400 });
-  }
+  return Promise.resolve(0); // Return a resolved promise with 0
+};
 
-  // Data to send in the POST request
-  const data = {
+const fetchTokenInfo = async (authorizationCode: string): Promise<TokenInfo> => {
+  const data = new URLSearchParams({
     client_id: clientId,
     client_secret: clientSecret,
     code: authorizationCode,
     redirect_uri: redirectUri,
     grant_type: GRANT_TYPE,
     code_verifier: codeVerifier,
-  };
+  });
 
-  try {
-    // Make the POST request to SoundCloud to exchange the code for an access token
-    const response = await fetch(TOKEN_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams(data as Record<string, string>),
-    });
+  const response = await fetch(TOKEN_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: data,
+  });
 
-    if (!response.ok) {
-      // Handle response errors (e.g., invalid code or network issues)
-      const errorText = await response.text();
-      return NextResponse.json({ error: `Error fetching token: ${errorText}` }, { status: response.status });
-    }
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error fetching token: ${errorText}`);
+  }
 
-    // Parse and return the token information
-    const tokenInfo = (await response.json()) as TokenInfo;
+  return response.json() as Promise<TokenInfo>; // Ensure this returns TokenInfo
+};
 
-    const inputData: Prisma.SoundCloudAccountCreateInput = {
-      user_id: userId, // Ensure this matches the model
-      access_token: tokenInfo.access_token,
-      refresh_token: tokenInfo.refresh_token,
-    };
-    await prisma.soundCloudAccount.create({
+const fetchMeData = async (accessToken: string): Promise<MeData> => {
+  const response = await fetch('https://api.soundcloud.com/me', {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json; charset=utf-8',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error fetching data: ${response.statusText}`);
+  }
+
+  return response.json() as Promise<MeData>; // Ensure the return type is MeData
+};
+
+const upsertSoundCloudAccount = async (
+  accountId: number | undefined,
+  inputData: Prisma.SoundCloudAccountCreateInput,
+): Promise<void> => {
+  if (accountId) {
+    await prisma.soundCloudAccount.update({
+      where: { id: accountId },
       data: inputData,
     });
+  } else {
+    await prisma.soundCloudAccount.create({ data: inputData });
+  }
+};
 
+export async function GET(request: Request): Promise<NextResponse> {
+  const { searchParams } = new URL(request.url);
+  const authorizationCode = searchParams.get('code');
+
+  if (!authorizationCode) {
+    return logAndRespondError('Authorization code is missing', HTTP_STATUS.BAD_REQUEST);
+  }
+
+  const userId = await getUserIdFromCookie();
+
+  try {
+    const tokenInfo = await fetchTokenInfo(authorizationCode);
+    const meData: MeData = await fetchMeData(tokenInfo.access_token);
+
+    const account: SoundCloudAccount | null = await prisma.soundCloudAccount.findFirst({
+      where: { soundCloudAccountId: meData.id },
+      select: { id: true, soundCloudAccountId: true },
+    });
+
+    const inputData: Prisma.SoundCloudAccountCreateInput = {
+      user_id: userId,
+      access_token: tokenInfo.access_token,
+      refresh_token: tokenInfo.refresh_token,
+      soundCloudAccountId: Number(meData.id),
+      username: meData.username,
+    };
+
+    await upsertSoundCloudAccount(account?.id, inputData);
     return NextResponse.redirect(new URL('/home', request.url));
   } catch (error) {
-    // Handle request errors
-    return NextResponse.json({ error: `Request failed: ${(error as Error).message}` }, { status: 500 });
+    return logAndRespondError(`Request failed: ${(error as Error).message}`, HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
