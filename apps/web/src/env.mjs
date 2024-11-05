@@ -13,7 +13,7 @@ export const env = createEnv({
     ACCESS_TOKEN_SECRET: z.string().min(1).default('access_token_secret'),
     CLINT_ID: z.string().min(1).default('client_id'),
     CLIENT_SECRET: z.string().min(1).default('client_secret'),
-    CODE_VERIFIER : z.string().min(1).default('code_verifier'),
+    CODE_VERIFIER: z.string().min(1).default('code_verifier'),
     DATABASE_URL: z
       .string()
       .regex(/^mysql:\/\/(?<username>[^:]+):(?<password>[^@]+)@(?<host>[^:]+):(?<port>\d+)\/(?<database>[^/]+)$/, {
@@ -21,7 +21,7 @@ export const env = createEnv({
       }),
     NODE_ENV: z.enum(['development', 'test', 'production']),
     REFRESH_TOKEN_SECRET: z.string().min(1).default('refresh_token_secret'),
-    REDIRECT_URL : z.string().min(1).default('redirect_uri'),
+    REDIRECT_URL: z.string().min(1).default('redirect_uri'),
   },
 
   /**
@@ -43,17 +43,17 @@ export const env = createEnv({
    */
   runtimeEnv: {
     ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
-    CLINT_ID : process.env.CLINT_ID,
-    CLIENT_SECRET : process.env.CLIENT_SECRET,
-    CODE_VERIFIER : process.env.CODE_VERIFIER,
-    CODE_CHALLENGE : process.env.CODE_CHALLENGE,
+    CLINT_ID: process.env.CLINT_ID,
+    CLIENT_SECRET: process.env.CLIENT_SECRET,
+    CODE_VERIFIER: process.env.CODE_VERIFIER,
+    CODE_CHALLENGE: process.env.CODE_CHALLENGE,
     DATABASE_URL: process.env.DATABASE_URL,
     NEXT_PUBLIC_ENDPOINT: process.env.NEXT_PUBLIC_ENDPOINT,
-    NEXT_PUBLIC_CLIENT_ID : process.env.CLINT_ID,
+    NEXT_PUBLIC_CLIENT_ID: process.env.CLINT_ID,
     NEXT_PUBLIC_CODE_CHALLENGE: process.env.CODE_CHALLENGE,
     NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_REDIRECT_URL: process.env.REDIRECT_URL,
-    REDIRECT_URL : process.env.REDIRECT_URL,
+    REDIRECT_URL: process.env.REDIRECT_URL,
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
   },
   /**
