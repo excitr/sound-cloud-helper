@@ -1,11 +1,10 @@
 'use server';
 import { prisma } from '@repo/database';
 import { compare } from 'bcryptjs';
-import { sign } from 'jsonwebtoken';
+import { z } from 'zod';
 import { logger } from '@repo/logger';
 import { cookies } from 'next/headers';
-import { TOKEN_KEY, REFRESH_TOKEN_KEY, USER_ID } from '@/app/modules/constant';
-import { env } from '@/env.mjs';
+import { TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/app/modules/constant';
 import { generateAccessToken, generateRefreshToken } from './login-helper';
 
 export interface APIResponse {
@@ -15,6 +14,12 @@ export interface APIResponse {
   refreshToken?: string;
   error?: string;
 }
+
+const UserSchema = z.object({
+  id: z.number(),
+  password: z.string(),
+  contactEmail: z.string().email(),
+});
 
 export async function getUserByEmail(data: { email: string; password: string }): Promise<APIResponse> {
   try {
@@ -30,7 +35,9 @@ export async function getUserByEmail(data: { email: string; password: string }):
       };
     }
 
-    const passwordMatch = await compare(data.password, user.password ?? '');
+    const validatedUser = UserSchema.parse(user);
+    logger.info(validatedUser, 'validatedUser');
+    const passwordMatch = await compare(data.password, validatedUser.password);
 
     if (!passwordMatch) {
       return {
@@ -39,27 +46,20 @@ export async function getUserByEmail(data: { email: string; password: string }):
       };
     }
 
-    const accessToken = generateAccessToken({ id: user.contactEmail ?? '' });
-    const refreshToken = generateRefreshToken({ id: user.contactEmail ?? '' });
+    const accessToken = generateAccessToken({ id: validatedUser.id, email: validatedUser.contactEmail });
+    const refreshToken = generateRefreshToken({ id: validatedUser.id, email: validatedUser.contactEmail });
 
     const cookieStore = await cookies();
 
     cookieStore.set(TOKEN_KEY, accessToken);
     cookieStore.set(REFRESH_TOKEN_KEY, refreshToken);
-    cookieStore.set(USER_ID, sign({ id: user.id }, env.ACCESS_TOKEN_SECRET), {
-      httpOnly: true,
-      secure: false,
-      path: '/sign-in',
-    });
 
     return {
       success: true,
-      token: accessToken,
-      refreshToken,
       id: user.id,
-    }; // Return the response with cookies set
+    };
   } catch (error) {
-    logger.error('Error:', error);
+    logger.error(error, 'Error:');
     return {
       success: false,
     };

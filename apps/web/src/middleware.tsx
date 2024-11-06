@@ -6,7 +6,7 @@ import { env } from './env.mjs';
 
 export const DEFAULT_HOME_PATH = '/authorisation';
 
-const publicPaths = ['/', '/home'];
+const publicPaths = ['/', '/home', '/api/auth/soundcloud/redirect'];
 const authPaths = ['/sign-in', '/sign-up', '/forgot-password', '/reset-password'];
 
 export const config = {

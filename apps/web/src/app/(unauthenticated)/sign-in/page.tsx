@@ -35,11 +35,11 @@ function Page(): React.JSX.Element {
     // Ensure to check the response status before parsing
     if (!response.ok) {
       setLoading(false);
-      throw new Error('Network response was not ok');
+      throw new Error('Oops! Something went wrong while connecting to the service. Please try again later.');
     }
 
     const result = SignInResponseSchema.parse(await response.json()); // This will throw an error if validation fails
-    logger.info(result, 'result');
+
     if (!result.success) {
       setLoading(false);
       const errorMessage = typeof result.error === 'string' ? result.error : 'Incorrect credentials';

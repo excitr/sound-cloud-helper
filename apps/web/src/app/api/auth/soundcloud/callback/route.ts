@@ -2,11 +2,12 @@
 
 import { NextResponse } from 'next/server';
 import { prisma, type Prisma } from '@repo/database';
+import { z } from 'zod';
 import { logger } from '@repo/logger';
 import { cookies } from 'next/headers';
 import { type JwtPayload, verify } from 'jsonwebtoken';
 import { env } from '@/env.mjs';
-import { GRANT_TYPE, TOKEN_URL, USER_ID } from '@/app/modules/constant.ts';
+import { GRANT_TYPE, SOUNDCLOUD_ME_URL, TOKEN_KEY, TOKEN_URL } from '@/app/modules/constant.ts';
 
 const HTTP_STATUS = {
   BAD_REQUEST: 400,
@@ -25,39 +26,35 @@ interface CustomJwtPayload extends JwtPayload {
   id: number;
 }
 
-interface SoundCloudAccount {
-  id: number;
-  soundCloudAccountId: number;
-}
-
 const logAndRespondError = (error: string, status: number): NextResponse<{ error: string }> => {
   logger.error(error);
   return NextResponse.json({ error }, { status });
 };
 
-interface MeData {
-  id: number;
-  username: string;
-  // Add other properties based on the actual response structure
-}
+const MeDataSchema = z.object({
+  id: z.number(),
+  username: z.string(),
+});
 
-const getUserIdFromCookie = async (): Promise<number> => {
+type MeData = z.infer<typeof MeDataSchema>;
+
+const getUserIdFromCookie = async (): Promise<number | null> => {
   const cookieStore = await cookies(); // Await the promise returned by cookies()
-  const userData = cookieStore.get(USER_ID);
+  const userData = cookieStore.get(TOKEN_KEY);
 
   if (userData) {
     const decoded = verify(userData.value, env.ACCESS_TOKEN_SECRET) as CustomJwtPayload;
-    logger.info(decoded, 'Decoded ID:');
+    logger.info('decoded', decoded);
     return decoded.id; // Directly return the user ID
   }
 
-  return 0; // Return 0 if no userData is found
+  return null;
 };
 
 const fetchTokenInfo = async (authorizationCode: string): Promise<TokenInfo> => {
   const data = new URLSearchParams({
-    client_id: env.CLINT_ID,
-    client_secret: env.CLIENT_SECRET,
+    client_id: env.SOUNDCLOUD_CLINT_ID,
+    client_secret: env.SOUNDCLOUD_CLIENT_SECRET,
     code: authorizationCode,
     redirect_uri: env.REDIRECT_URL,
     grant_type: GRANT_TYPE,
@@ -78,7 +75,7 @@ const fetchTokenInfo = async (authorizationCode: string): Promise<TokenInfo> => 
 };
 
 const fetchMeData = async (accessToken: string): Promise<MeData> => {
-  const response = await fetch('https://api.soundcloud.com/me', {
+  const response = await fetch(SOUNDCLOUD_ME_URL, {
     method: 'GET',
     headers: {
       Accept: 'application/json; charset=utf-8',
@@ -90,7 +87,7 @@ const fetchMeData = async (accessToken: string): Promise<MeData> => {
     throw new Error(`Error fetching data: ${response.statusText}`);
   }
 
-  return response.json() as Promise<MeData>; // Ensure the return type is MeData
+  return MeDataSchema.parse(await response.json());
 };
 
 const upsertSoundCloudAccount = async (
@@ -121,15 +118,16 @@ export async function GET(request: Request): Promise<NextResponse> {
     const tokenInfo = await fetchTokenInfo(authorizationCode);
     const meData: MeData = await fetchMeData(tokenInfo.access_token);
 
-    const account: SoundCloudAccount | null = await prisma.soundCloudAccount.findFirst({
+    const account = await prisma.soundCloudAccount.findFirst({
       where: { soundCloudAccountId: meData.id },
       select: { id: true, soundCloudAccountId: true },
     });
 
     const inputData: Prisma.SoundCloudAccountCreateInput = {
       userId: Number(userId),
-      access_token: tokenInfo.access_token,
-      refresh_token: tokenInfo.refresh_token,
+      accessToken: tokenInfo.access_token,
+      accessTokenExpireAt: tokenInfo.expires_in,
+      refreshToken: tokenInfo.refresh_token,
       soundCloudAccountId: Number(meData.id),
       username: meData.username,
     };

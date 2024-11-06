@@ -2,11 +2,10 @@
 
 import { NextResponse } from 'next/server';
 import { SignInSchema } from '@/utils/schemas/login-schemas';
-import { getUserByEmail } from './login-api';
+import { getUserByEmail } from './login-actions';
 
 export async function POST(request: Request): Promise<NextResponse<{ success: true } | { success: false }>> {
-  // Use type assertion to specify that the result of request.json() matches the expected shape
-  const body = (await request.json()) as unknown; // Start with 'unknown' to ensure safe casting
+  const body = (await request.json()) as unknown;
   const parsed = SignInSchema.safeParse(body);
 
   if (!parsed.success) {

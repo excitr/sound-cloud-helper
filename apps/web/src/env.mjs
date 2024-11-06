@@ -11,9 +11,10 @@ export const env = createEnv({
    */
   server: {
     ACCESS_TOKEN_SECRET: z.string().min(1).default('access_token_secret'),
-    CLINT_ID: z.string().min(1).default('client_id'),
-    CLIENT_SECRET: z.string().min(1).default('client_secret'),
+    SOUNDCLOUD_CLINT_ID: z.string().min(1).default('client_id'),
+    SOUNDCLOUD_CLIENT_SECRET: z.string().min(1).default('client_secret'),
     CODE_VERIFIER: z.string().min(1).default('code_verifier'),
+    CODE_CHALLENGE: z.string().min(1).default('code_challenge'),
     DATABASE_URL: z
       .string()
       .regex(/^mysql:\/\/(?<username>[^:]+):(?<password>[^@]+)@(?<host>[^:]+):(?<port>\d+)\/(?<database>[^/]+)$/, {
@@ -30,10 +31,9 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    NEXT_PUBLIC_CLIENT_ID: z.string().min(1).default('xd14qP9rMwtXGyn7He27BzDoJmwlzjV4'),
-    NEXT_PUBLIC_CODE_CHALLENGE: z.string().min(1).default('tLPc_OtzPcBUfqToSU3_2Q-Dw0I_T3DROyRQYo-q3Sk'),
+    
+    
     NEXT_PUBLIC_ENDPOINT: z.string().min(1).default('http://localhost:3000'),
-    NEXT_PUBLIC_REDIRECT_URL: z.string().min(1).default('http://localhost:3000/api/auth/soundcloud/callback'),
     // Add `.min(1) on these if you want to make sure they're not empty
   },
 
@@ -43,15 +43,13 @@ export const env = createEnv({
    */
   runtimeEnv: {
     ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
-    CLINT_ID: process.env.CLINT_ID,
-    CLIENT_SECRET: process.env.CLIENT_SECRET,
+    SOUNDCLOUD_CLINT_ID: process.env.CLINT_ID,
+    CODE_CHALLENGE: process.env.CODE_CHALLENGE,
+    SOUNDCLOUD_CLIENT_SECRET: process.env.CLIENT_SECRET,
     CODE_VERIFIER: process.env.CODE_VERIFIER,
     DATABASE_URL: process.env.DATABASE_URL,
     NEXT_PUBLIC_ENDPOINT: process.env.NEXT_PUBLIC_ENDPOINT,
-    NEXT_PUBLIC_CLIENT_ID: process.env.CLINT_ID,
-    NEXT_PUBLIC_CODE_CHALLENGE: process.env.CODE_CHALLENGE,
     NODE_ENV: process.env.NODE_ENV,
-    NEXT_PUBLIC_REDIRECT_URL: process.env.REDIRECT_URL,
     REDIRECT_URL: process.env.REDIRECT_URL,
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
   },

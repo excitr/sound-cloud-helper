@@ -2,22 +2,13 @@
 import React, { useCallback } from 'react';
 import { Button, Typography, Box } from '@mui/material';
 import Image from 'next/image';
-import { env } from '@/env.mjs';
-
-const clientId = env.NEXT_PUBLIC_CLIENT_ID;
-const redirectUri = env.NEXT_PUBLIC_REDIRECT_URL;
-const codeChallenge = env.NEXT_PUBLIC_CODE_CHALLENGE;
 
 function SoundCloudAuth(): React.JSX.Element {
   // Generate a random state value for added security
-  const state = Array.from(crypto.getRandomValues(new Uint8Array(8)))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
 
   const redirectToSoundCloud = useCallback(() => {
-    const url = `https://secure.soundcloud.com/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&code_challenge=${codeChallenge}&code_challenge_method=S256&state=${state}`;
-    window.location.href = url;
-  }, [state]);
+    window.location.href = '/api/auth/soundcloud/redirect';
+  }, []);
 
   return (
     <Box

@@ -23,7 +23,6 @@ export const SignUpSchema = z.object({
   lastName: z.string().min(2, { message: 'Last name must be at least 2 characters' }),
   email: z.string().email(),
   password: PasswordSchema,
-  //[inviteHashLabel]: z.string().optional(),
 });
 
 export const SignInSchema = z.object({
