@@ -13,24 +13,27 @@ const TokenResponseSchema = z.object({
   scope: z.string(),
 });
 
-const clientId = env.SOUNDCLOUD_CLINT_ID;
-const clientSecret = env.SOUNDCLOUD_CLIENT_SECRET;
-
 export async function POST(): Promise<Response> {
   try {
+    const currentTimeMinus10Minutes = Math.floor((Date.now() - 10 * 60 * 1000) / 1000); // Get time 10 minutes ago in seconds
+    logger.info(currentTimeMinus10Minutes, 'currentTimeMinus10Minutes');
     const account = await prisma.soundCloudAccount.findFirst({
-      where: { id: 3 },
+      where: {
+        accessTokenExpireAt: {
+          lt: currentTimeMinus10Minutes,
+        },
+      },
     });
 
-    if (!account?.refreshToken) {
-      throw new Error('Refresh token is required');
+    if (!account) {
+      throw new Error('Account not found');
     }
 
     // Prepare the request body
     const data = new URLSearchParams({
       grant_type: REFRESH_GRANT_TYPE,
-      client_id: clientId || '',
-      client_secret: clientSecret || '',
+      client_id: env.SOUNDCLOUD_CLINT_ID,
+      client_secret: env.SOUNDCLOUD_CLIENT_SECRET,
       refresh_token: account.refreshToken,
     });
 
@@ -50,13 +53,12 @@ export async function POST(): Promise<Response> {
         data: {
           refreshToken: responseData.refresh_token,
           accessToken: responseData.access_token,
+          accessTokenExpireAt: Math.floor(Date.now() / 1000) + responseData.expires_in,
         },
       });
     } catch (error) {
       if (error instanceof Error) {
         logger.error(error.message);
-      } else {
-        logger.error('Unknown error type');
       }
     }
 

@@ -21,7 +21,7 @@ const UserSchema = z.object({
   contactEmail: z.string().email(),
 });
 
-export async function getUserByEmail(data: { email: string; password: string }): Promise<APIResponse> {
+export async function fetchUserByEmail(data: { email: string; password: string }): Promise<APIResponse> {
   try {
     const user = await prisma.user.findFirst({
       where: { contactEmail: data.email },

@@ -32,13 +32,12 @@ function Page(): React.JSX.Element {
       body: JSON.stringify(values),
     });
 
-    // Ensure to check the response status before parsing
     if (!response.ok) {
       setLoading(false);
       throw new Error('Oops! Something went wrong while connecting to the service. Please try again later.');
     }
 
-    const result = SignInResponseSchema.parse(await response.json()); // This will throw an error if validation fails
+    const result = SignInResponseSchema.parse(await response.json());
 
     if (!result.success) {
       setLoading(false);

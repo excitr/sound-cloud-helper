@@ -2,7 +2,7 @@
 
 import { NextResponse } from 'next/server';
 import { SignInSchema } from '@/utils/schemas/login-schemas';
-import { getUserByEmail } from './login-actions';
+import { fetchUserByEmail } from './login-actions';
 
 export async function POST(request: Request): Promise<NextResponse<{ success: true } | { success: false }>> {
   const body = (await request.json()) as unknown;
@@ -19,7 +19,7 @@ export async function POST(request: Request): Promise<NextResponse<{ success: tr
     });
   }
 
-  const result = await getUserByEmail(parsed.data);
+  const result = await fetchUserByEmail(parsed.data);
 
   return NextResponse.json(result);
 }
