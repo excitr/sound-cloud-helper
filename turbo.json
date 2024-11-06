@@ -3,15 +3,15 @@
   "globalDependencies": ["**/.env.*local", "**/.env"],
   "globalEnv": [
     "ACCESS_TOKEN_SECRET",
-    "CLINT_ID",
-    "CLIENT_SECRET",
     "CODE_VERIFIER",
     "CODE_CHALLENGE",
     "DATABASE_URL",
     "NODE_ENV",
     "REFRESH_TOKEN_SECRET",
     "REDIRECT_URL",
-    "SKIP_ENV_VALIDATION"
+    "SKIP_ENV_VALIDATION",
+    "SOUNDCLOUD_CLIENT_SECRET",
+    "SOUNDCLOUD_CLINT_ID"
   ],
   "tasks": {
     "build": {

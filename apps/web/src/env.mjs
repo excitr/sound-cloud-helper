@@ -31,8 +31,6 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    
-    
     NEXT_PUBLIC_ENDPOINT: z.string().min(1).default('http://localhost:3000'),
     // Add `.min(1) on these if you want to make sure they're not empty
   },
@@ -43,9 +41,9 @@ export const env = createEnv({
    */
   runtimeEnv: {
     ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
-    SOUNDCLOUD_CLINT_ID: process.env.CLINT_ID,
+    SOUNDCLOUD_CLINT_ID: process.env.SOUNDCLOUD_CLINT_ID,
     CODE_CHALLENGE: process.env.CODE_CHALLENGE,
-    SOUNDCLOUD_CLIENT_SECRET: process.env.CLIENT_SECRET,
+    SOUNDCLOUD_CLIENT_SECRET: process.env.SOUNDCLOUD_CLIENT_SECRET,
     CODE_VERIFIER: process.env.CODE_VERIFIER,
     DATABASE_URL: process.env.DATABASE_URL,
     NEXT_PUBLIC_ENDPOINT: process.env.NEXT_PUBLIC_ENDPOINT,
