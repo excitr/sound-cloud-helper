@@ -7,7 +7,13 @@ import { logger } from '@repo/logger';
 import { cookies } from 'next/headers';
 import { type JwtPayload, verify } from 'jsonwebtoken';
 import { env } from '@/env.mjs';
-import { GRANT_TYPE, SOUNDCLOUD_ME_URL, TOKEN_KEY, TOKEN_URL } from '@/app/modules/constant.ts';
+import {
+  GRANT_TYPE,
+  SOUNDCLOUD_ME_URL,
+  SOUNDCLOUD_REDIRECT_URL,
+  TOKEN_KEY,
+  TOKEN_URL,
+} from '@/app/modules/constant.ts';
 
 const HTTP_STATUS = {
   BAD_REQUEST: 400,
@@ -15,13 +21,6 @@ const HTTP_STATUS = {
   INTERNAL_SERVER_ERROR: 500,
   SUCCESS: 200,
 };
-
-interface TokenInfo {
-  access_token: string;
-  expires_in: number;
-  refresh_token: string;
-}
-
 interface CustomJwtPayload extends JwtPayload {
   id: number;
 }
@@ -36,7 +35,15 @@ const MeDataSchema = z.object({
   username: z.string(),
 });
 
+const TokenInfoSchema = z.object({
+  access_token: z.string(),
+  expires_in: z.number(),
+  refresh_token: z.string(),
+});
+
 type MeData = z.infer<typeof MeDataSchema>;
+
+type TokenInfo = z.infer<typeof TokenInfoSchema>;
 
 const getUserIdFromCookie = async (): Promise<number | null> => {
   const cookieStore = await cookies(); // Await the promise returned by cookies()
@@ -44,7 +51,7 @@ const getUserIdFromCookie = async (): Promise<number | null> => {
 
   if (userData) {
     const decoded = verify(userData.value, env.ACCESS_TOKEN_SECRET) as CustomJwtPayload;
-    logger.info('decoded', decoded);
+
     return decoded.id; // Directly return the user ID
   }
 
@@ -56,7 +63,7 @@ const fetchTokenInfo = async (authorizationCode: string): Promise<TokenInfo> => 
     client_id: env.SOUNDCLOUD_CLINT_ID,
     client_secret: env.SOUNDCLOUD_CLIENT_SECRET,
     code: authorizationCode,
-    redirect_uri: env.REDIRECT_URL,
+    redirect_uri: `${env.BASE_URL}${SOUNDCLOUD_REDIRECT_URL}`,
     grant_type: GRANT_TYPE,
     code_verifier: env.CODE_VERIFIER,
   });
@@ -71,7 +78,7 @@ const fetchTokenInfo = async (authorizationCode: string): Promise<TokenInfo> => 
     throw new Error(`Error fetching token: ${errorText}`);
   }
 
-  return response.json() as Promise<TokenInfo>; // Ensure this returns TokenInfo
+  return TokenInfoSchema.parse(await response.json());
 };
 
 const fetchMeData = async (accessToken: string): Promise<MeData> => {
@@ -116,6 +123,7 @@ export async function GET(request: Request): Promise<NextResponse> {
 
   try {
     const tokenInfo = await fetchTokenInfo(authorizationCode);
+    logger.info(tokenInfo, 'tokenInfo');
     const meData: MeData = await fetchMeData(tokenInfo.access_token);
 
     const account = await prisma.soundCloudAccount.findFirst({
@@ -126,7 +134,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     const inputData: Prisma.SoundCloudAccountCreateInput = {
       userId: Number(userId),
       accessToken: tokenInfo.access_token,
-      accessTokenExpireAt: Math.floor(Date.now() / 1000) + tokenInfo.expires_in,
+      accessTokenExpireAt: new Date(Date.now() + tokenInfo.expires_in * 1000),
       refreshToken: tokenInfo.refresh_token,
       soundCloudAccountId: Number(meData.id),
       username: meData.username,

@@ -22,7 +22,7 @@ export const env = createEnv({
       }),
     NODE_ENV: z.enum(['development', 'test', 'production']),
     REFRESH_TOKEN_SECRET: z.string().min(1).default('refresh_token_secret'),
-    REDIRECT_URL: z.string().min(1).default('redirect_uri'),
+    BASE_URL: z.string().min(1).default('http://localhost:3000'),
   },
 
   /**
@@ -31,7 +31,6 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    NEXT_PUBLIC_ENDPOINT: z.string().min(1).default('http://localhost:3000'),
     // Add `.min(1) on these if you want to make sure they're not empty
   },
 
@@ -46,7 +45,6 @@ export const env = createEnv({
     SOUNDCLOUD_CLIENT_SECRET: process.env.SOUNDCLOUD_CLIENT_SECRET,
     CODE_VERIFIER: process.env.CODE_VERIFIER,
     DATABASE_URL: process.env.DATABASE_URL,
-    NEXT_PUBLIC_ENDPOINT: process.env.NEXT_PUBLIC_ENDPOINT,
     NODE_ENV: process.env.NODE_ENV,
     REDIRECT_URL: process.env.REDIRECT_URL,
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,

@@ -2,7 +2,7 @@
 
 import { NextResponse } from 'next/server';
 import { SignInSchema } from '@/utils/schemas/login-schemas';
-import { fetchUserByEmail } from './login-actions';
+import { fetchUserByEmail } from './actions';
 
 export async function POST(request: Request): Promise<NextResponse<{ success: true } | { success: false }>> {
   const body = (await request.json()) as unknown;

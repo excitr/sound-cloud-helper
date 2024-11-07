@@ -533,7 +533,7 @@ model SoundCloudAccount {
   userId              Int      @map("user_id")
   soundCloudAccountId Int      @map("sound_cloud_account_id")
   username            String
-  accessTokenExpireAt Int      @map("access_token_expire_at")
+  accessTokenExpireAt DateTime @map("access_token_expire_at")
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @default(now()) @map("updated_at")
 

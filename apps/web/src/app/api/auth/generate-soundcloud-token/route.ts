@@ -15,8 +15,8 @@ const TokenResponseSchema = z.object({
 
 export async function POST(): Promise<Response> {
   try {
-    const currentTimeMinus10Minutes = Math.floor((Date.now() - 10 * 60 * 1000) / 1000); // Get time 10 minutes ago in seconds
-    logger.info(currentTimeMinus10Minutes, 'currentTimeMinus10Minutes');
+    const currentTimeMinus10Minutes = new Date(Date.now() - 10 * 60 * 1000); // Get time 10 minutes ago in seconds
+
     const account = await prisma.soundCloudAccount.findFirst({
       where: {
         accessTokenExpireAt: {
@@ -53,7 +53,7 @@ export async function POST(): Promise<Response> {
         data: {
           refreshToken: responseData.refresh_token,
           accessToken: responseData.access_token,
-          accessTokenExpireAt: Math.floor(Date.now() / 1000) + responseData.expires_in,
+          accessTokenExpireAt: new Date(Date.now() + responseData.expires_in * 1000),
         },
       });
     } catch (error) {
