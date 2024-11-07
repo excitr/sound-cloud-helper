@@ -46,7 +46,6 @@ export const env = createEnv({
     CODE_VERIFIER: process.env.CODE_VERIFIER,
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
-    REDIRECT_URL: process.env.REDIRECT_URL,
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
   },
   /**
