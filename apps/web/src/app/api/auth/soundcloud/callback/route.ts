@@ -97,20 +97,6 @@ const fetchMeData = async (accessToken: string): Promise<MeData> => {
   return MeDataSchema.parse(await response.json());
 };
 
-const upsertSoundCloudAccount = async (
-  accountId: number | undefined,
-  inputData: Prisma.SoundCloudAccountCreateInput,
-): Promise<void> => {
-  if (accountId) {
-    await prisma.soundCloudAccount.update({
-      where: { id: accountId },
-      data: inputData,
-    });
-  } else {
-    await prisma.soundCloudAccount.create({ data: inputData });
-  }
-};
-
 export async function GET(request: Request): Promise<NextResponse> {
   const { searchParams } = new URL(request.url);
   const authorizationCode = searchParams.get('code');
@@ -126,11 +112,6 @@ export async function GET(request: Request): Promise<NextResponse> {
 
     const meData: MeData = await fetchMeData(tokenInfo.access_token);
 
-    const account = await prisma.soundCloudAccount.findFirst({
-      where: { soundCloudAccountId: meData.id },
-      select: { id: true, soundCloudAccountId: true },
-    });
-
     const inputData: Prisma.SoundCloudAccountCreateInput = {
       userId: Number(userId),
       accessToken: tokenInfo.access_token,
@@ -140,7 +121,14 @@ export async function GET(request: Request): Promise<NextResponse> {
       username: meData.username,
     };
 
-    await upsertSoundCloudAccount(account?.id, inputData);
+    await prisma.soundCloudAccount.upsert({
+      where: {
+        userId_soundCloudAccountId: { userId: Number(userId), soundCloudAccountId: Number(meData.id) },
+      },
+      update: inputData,
+      create: inputData,
+    });
+
     return NextResponse.redirect(new URL('/home', request.url));
   } catch (error) {
     return logAndRespondError(`Request failed: ${(error as Error).message}`, HTTP_STATUS.INTERNAL_SERVER_ERROR);

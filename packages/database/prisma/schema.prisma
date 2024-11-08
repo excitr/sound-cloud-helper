@@ -527,7 +527,7 @@ model UserRole {
 }
 
 model SoundCloudAccount {
-  id                  Int      @id @default(autoincrement())
+  id                  String   @id @default(cuid())
   accessToken         String   @map("access_token")
   refreshToken        String   @map("refresh_token")
   userId              Int      @map("user_id")
@@ -537,6 +537,7 @@ model SoundCloudAccount {
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @default(now()) @updatedAt @map("updated_at")
 
+  @@unique([userId, soundCloudAccountId])
   @@map("sound_cloud_account")
 }
 
