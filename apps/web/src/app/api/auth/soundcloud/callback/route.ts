@@ -123,7 +123,7 @@ export async function GET(request: Request): Promise<NextResponse> {
 
   try {
     const tokenInfo = await fetchTokenInfo(authorizationCode);
-    logger.info(tokenInfo, 'tokenInfo');
+
     const meData: MeData = await fetchMeData(tokenInfo.access_token);
 
     const account = await prisma.soundCloudAccount.findFirst({
