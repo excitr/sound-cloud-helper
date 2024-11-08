@@ -11,6 +11,10 @@ export const env = createEnv({
    */
   server: {
     ACCESS_TOKEN_SECRET: z.string().min(1).default('access_token_secret'),
+    SOUNDCLOUD_CLINT_ID: z.string().min(1).default('client_id'),
+    SOUNDCLOUD_CLIENT_SECRET: z.string().min(1).default('client_secret'),
+    CODE_VERIFIER: z.string().min(1).default('code_verifier'),
+    CODE_CHALLENGE: z.string().min(1).default('code_challenge'),
     DATABASE_URL: z
       .string()
       .regex(/^mysql:\/\/(?<username>[^:]+):(?<password>[^@]+)@(?<host>[^:]+):(?<port>\d+)\/(?<database>[^/]+)$/, {
@@ -18,6 +22,7 @@ export const env = createEnv({
       }),
     NODE_ENV: z.enum(['development', 'test', 'production']),
     REFRESH_TOKEN_SECRET: z.string().min(1).default('refresh_token_secret'),
+    BASE_URL: z.string().min(1).default('http://localhost:3000'),
   },
 
   /**
@@ -26,7 +31,6 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
     // Add `.min(1) on these if you want to make sure they're not empty
   },
 
@@ -36,6 +40,10 @@ export const env = createEnv({
    */
   runtimeEnv: {
     ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
+    SOUNDCLOUD_CLINT_ID: process.env.SOUNDCLOUD_CLINT_ID,
+    CODE_CHALLENGE: process.env.CODE_CHALLENGE,
+    SOUNDCLOUD_CLIENT_SECRET: process.env.SOUNDCLOUD_CLIENT_SECRET,
+    CODE_VERIFIER: process.env.CODE_VERIFIER,
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,

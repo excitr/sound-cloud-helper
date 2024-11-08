@@ -471,9 +471,9 @@ model TouchedScUser {
 model User {
   id                Int                @id @default(autoincrement())
   login             String?            @db.VarChar(45)
-  password          String?            @db.VarChar(60)
+  password          String             @db.VarChar(60)
   userRoleId        Int                @map("user_role_id")
-  contactEmail      String?            @map("contact_email") @db.VarChar(254)
+  contactEmail      String             @map("contact_email") @db.VarChar(254)
   token             String?            @db.MediumText
   timeLeft          Int?               @map("time_left")
   timezoneId        Int?               @map("timezone_id")
@@ -524,6 +524,21 @@ model UserRole {
   user User[]
 
   @@map("user_role")
+}
+
+model SoundCloudAccount {
+  id                  String   @id @default(cuid())
+  accessToken         String   @map("access_token")
+  refreshToken        String   @map("refresh_token")
+  userId              Int      @map("user_id")
+  soundCloudAccountId Int      @map("sound_cloud_account_id")
+  username            String
+  accessTokenExpireAt DateTime @map("access_token_expire_at")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@unique([userId, soundCloudAccountId])
+  @@map("sound_cloud_account")
 }
 
 enum AccountPaymentPaymentActive {

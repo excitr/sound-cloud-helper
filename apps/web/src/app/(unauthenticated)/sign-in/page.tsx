@@ -1,7 +1,7 @@
 'use client';
 
 import { z } from 'zod';
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Container, Button, Typography, Box, TextField, CircularProgress } from '@mui/material';
 import { Formik, Form } from 'formik';
 import { useRouter } from 'next/navigation';
@@ -9,9 +9,11 @@ import { logger } from '@repo/logger';
 import { toast } from 'react-hot-toast';
 import { DEFAULT_HOME_PATH } from '@/middleware';
 import { SignInSchema, type SignInSchemaType } from '@/utils/schemas/login-schemas';
+import { UserContext } from '@/context/user-context';
 
 const SignInResponseSchema = z.object({
   success: z.boolean(),
+  id: z.number().optional(),
   token: z.string().optional(),
   refreshToken: z.string().optional(),
   error: z.string().optional(),
@@ -20,6 +22,7 @@ const SignInResponseSchema = z.object({
 function Page(): React.JSX.Element {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const { updateUserFromToken } = useContext(UserContext) ?? {};
 
   const handleFormSubmit = async (values: SignInSchemaType): Promise<void> => {
     setLoading(true);
@@ -29,13 +32,12 @@ function Page(): React.JSX.Element {
       body: JSON.stringify(values),
     });
 
-    // Ensure to check the response status before parsing
     if (!response.ok) {
       setLoading(false);
-      throw new Error('Network response was not ok');
+      throw new Error('Oops! Something went wrong while connecting to the service. Please try again later.');
     }
 
-    const result = SignInResponseSchema.parse(await response.json()); // This will throw an error if validation fails
+    const result = SignInResponseSchema.parse(await response.json());
 
     if (!result.success) {
       setLoading(false);
@@ -45,6 +47,11 @@ function Page(): React.JSX.Element {
       throw new Error(errorMessage);
     }
     setLoading(false);
+
+    if (result.id && updateUserFromToken) {
+      updateUserFromToken(result.id);
+    }
+
     toast.success('Login Successfully');
 
     router.push(DEFAULT_HOME_PATH);

@@ -1,8 +1,15 @@
-import React from 'react';
+'use client';
+import React, { useCallback } from 'react';
 import { Button, Typography, Box } from '@mui/material';
 import Image from 'next/image';
 
 function SoundCloudAuth(): React.JSX.Element {
+  // Generate a random state value for added security
+
+  const redirectToSoundCloud = useCallback(() => {
+    window.location.href = '/api/auth/soundcloud/redirect';
+  }, []);
+
   return (
     <Box
       sx={{
@@ -34,6 +41,7 @@ function SoundCloudAuth(): React.JSX.Element {
 
         <Button
           variant="contained"
+          onClick={redirectToSoundCloud}
           sx={{
             backgroundColor: '#FF5722',
             color: '#fff',

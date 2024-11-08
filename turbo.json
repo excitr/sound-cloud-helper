@@ -1,7 +1,17 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["**/.env.*local", "**/.env"],
-  "globalEnv": ["ACCESS_TOKEN_SECRET", "DATABASE_URL", "NODE_ENV", "REFRESH_TOKEN_SECRET", "SKIP_ENV_VALIDATION"],
+  "globalEnv": [
+    "ACCESS_TOKEN_SECRET",
+    "CODE_VERIFIER",
+    "CODE_CHALLENGE",
+    "DATABASE_URL",
+    "NODE_ENV",
+    "REFRESH_TOKEN_SECRET",
+    "SKIP_ENV_VALIDATION",
+    "SOUNDCLOUD_CLIENT_SECRET",
+    "SOUNDCLOUD_CLINT_ID"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
