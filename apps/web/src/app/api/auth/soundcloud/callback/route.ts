@@ -101,13 +101,14 @@ const upsertSoundCloudAccount = async (
   accountId: number | undefined,
   inputData: Prisma.SoundCloudAccountCreateInput,
 ): Promise<void> => {
-  await prisma.soundCloudAccount.upsert({
-    where: {
-      id: accountId,
-    },
-    update: inputData,
-    create: inputData,
-  });
+  if (accountId) {
+    await prisma.soundCloudAccount.update({
+      where: { id: accountId },
+      data: inputData,
+    });
+  } else {
+    await prisma.soundCloudAccount.create({ data: inputData });
+  }
 };
 
 export async function GET(request: Request): Promise<NextResponse> {
