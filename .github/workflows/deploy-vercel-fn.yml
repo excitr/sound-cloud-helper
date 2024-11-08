@@ -74,7 +74,7 @@ jobs:
 
       - name: Run Migrations
         id: migrations
-        if: ${{ inputs.environment == 'app' }}
+        if: ${{ inputs.environment == 'app' && github.event_name != 'pull_request' }}
         run: |
           touch .env
 
