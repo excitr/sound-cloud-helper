@@ -36,7 +36,7 @@ export async function fetchUserByEmail(data: { email: string; password: string }
     }
 
     const validatedUser = UserSchema.parse(user);
-    logger.info(validatedUser, 'validatedUser');
+
     const passwordMatch = await compare(data.password, validatedUser.password);
 
     if (!passwordMatch) {
