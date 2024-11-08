@@ -1,7 +1,6 @@
 'use server';
 import { prisma } from '@repo/database';
 import { compare } from 'bcryptjs';
-import { z } from 'zod';
 import { logger } from '@repo/logger';
 import { cookies } from 'next/headers';
 import { TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/app/modules/constant';
@@ -14,12 +13,6 @@ export interface APIResponse {
   refreshToken?: string;
   error?: string;
 }
-
-const UserSchema = z.object({
-  id: z.number(),
-  password: z.string(),
-  contactEmail: z.string().email(),
-});
 
 export async function fetchUserByEmail(data: { email: string; password: string }): Promise<APIResponse> {
   try {
@@ -35,7 +28,7 @@ export async function fetchUserByEmail(data: { email: string; password: string }
       };
     }
 
-    const validatedUser = UserSchema.parse(user);
+    const validatedUser = user;
 
     const passwordMatch = await compare(data.password, validatedUser.password);
 

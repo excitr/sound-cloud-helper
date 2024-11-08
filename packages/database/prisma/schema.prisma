@@ -473,7 +473,7 @@ model User {
   login             String?            @db.VarChar(45)
   password          String             @db.VarChar(60)
   userRoleId        Int                @map("user_role_id")
-  contactEmail      String?            @map("contact_email") @db.VarChar(254)
+  contactEmail      String             @map("contact_email") @db.VarChar(254)
   token             String?            @db.MediumText
   timeLeft          Int?               @map("time_left")
   timezoneId        Int?               @map("timezone_id")
@@ -535,7 +535,7 @@ model SoundCloudAccount {
   username            String
   accessTokenExpireAt DateTime @map("access_token_expire_at")
   createdAt           DateTime @default(now()) @map("created_at")
-  updatedAt           DateTime @default(now()) @map("updated_at")
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("sound_cloud_account")
 }
