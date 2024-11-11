@@ -10,6 +10,7 @@ on:
     paths:
       - apps/web/**
       - apps/backoffice/**
+      - packages/database/**
       - packages/logger/**
       - packages/mode/**
       - packages/ui/**
