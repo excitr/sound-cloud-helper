@@ -12,7 +12,7 @@
     "default": "./src/client.ts"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "pnpm generate",
     "dev": "concurrently 'pnpm db:migrate:deploy' 'pnpm generate'",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:migrate:dev": "prisma migrate dev --create-only",
