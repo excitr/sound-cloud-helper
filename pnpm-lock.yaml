@@ -317,6 +317,9 @@ importers:
 
   packages/logger:
     dependencies:
+      '@repo/mode':
+        specifier: workspace:*
+        version: link:../mode
       pino:
         specifier: ^9.5.0
         version: 9.5.0

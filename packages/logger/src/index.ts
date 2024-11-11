@@ -1,10 +1,13 @@
 import { type LoggerOptions, pino } from 'pino';
 import { type LogData, pinoLambdaDestination, PinoLogFormatter } from 'pino-lambda';
+import { Environment, NODE_ENV } from '@repo/mode';
 
 const optionsOrStream: LoggerOptions = {
   base: undefined,
   transport: {
-    targets: [{ target: process.env.MODE ? 'pino/file' : 'pino-pretty', options: { destination: 1 } }],
+    targets: [
+      { target: NODE_ENV === Environment.Production ? 'pino/file' : 'pino-pretty', options: { destination: 1 } },
+    ],
   },
 };
 

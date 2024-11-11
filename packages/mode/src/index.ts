@@ -4,7 +4,8 @@ export enum Environment {
   Test = 'test',
 }
 
-export const isMode = (val: string): val is Environment => Object.values(Environment).includes(val as Environment);
+export const isEnvironment = (val: string): val is Environment =>
+  Object.values(Environment).includes(val as Environment);
 
 export const NODE_ENV =
-  !process.env.NODE_ENV || !isMode(process.env.NODE_ENV) ? Environment.Development : process.env.MODE;
+  !process.env.NODE_ENV || !isEnvironment(process.env.NODE_ENV) ? Environment.Development : process.env.NODE_ENV;
