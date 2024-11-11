@@ -1,3 +1,5 @@
+'use server';
+
 import { type NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/app/modules/constant';
@@ -7,12 +9,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   cookieStore.delete(TOKEN_KEY); // Now you can use delete
   cookieStore.delete(REFRESH_TOKEN_KEY);
 
-  const url = new URL(`/sign-in`);
+  const url = new URL('/sign-in', request.nextUrl.origin);
   const redirectUrl = request.nextUrl.searchParams.get('redirect');
 
   if (redirectUrl) {
     url.searchParams.set('redirect', redirectUrl);
   }
 
-  return NextResponse.redirect(url); // Use NextResponse.redirect for proper redirection
+  return NextResponse.redirect(url);
 }
