@@ -7,10 +7,10 @@ const config = {
   transpilePackages: ['@repo/ui'],
   webpack: (config, { isServer }) => {
     if (isServer) {
-      config.plugins = [...config.plugins, new PrismaPlugin()]
+      config.plugins = [...config.plugins, new PrismaPlugin()];
     }
-    return config
-  }
+    return config;
+  },
 };
 
 export default config;

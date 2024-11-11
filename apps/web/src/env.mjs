@@ -22,6 +22,7 @@ export const env = createEnv({
       }),
     NODE_ENV: z.enum(['development', 'test', 'production']),
     REFRESH_TOKEN_SECRET: z.string().min(1).default('refresh_token_secret'),
+    SOUNDCLOUD_REDIRECT_URL: z.string().min(1).default('http://localhost:3000/api/auth/soundcloud/callback'),
     BASE_URL: z.string().min(1).default('http://localhost:3000'),
   },
 

@@ -7,13 +7,7 @@ import { logger } from '@repo/logger';
 import { cookies } from 'next/headers';
 import { type JwtPayload, verify } from 'jsonwebtoken';
 import { env } from '@/env.mjs';
-import {
-  GRANT_TYPE,
-  SOUNDCLOUD_ME_URL,
-  SOUNDCLOUD_REDIRECT_URL,
-  TOKEN_KEY,
-  TOKEN_URL,
-} from '@/app/modules/constant.ts';
+import { GRANT_TYPE, SOUNDCLOUD_ME_URL, TOKEN_KEY, TOKEN_URL } from '@/app/modules/constant.ts';
 
 const HTTP_STATUS = {
   BAD_REQUEST: 400,
@@ -63,7 +57,7 @@ const fetchTokenInfo = async (authorizationCode: string): Promise<TokenInfo> => 
     client_id: env.SOUNDCLOUD_CLINT_ID,
     client_secret: env.SOUNDCLOUD_CLIENT_SECRET,
     code: authorizationCode,
-    redirect_uri: `${env.BASE_URL}${SOUNDCLOUD_REDIRECT_URL}`,
+    redirect_uri: env.SOUNDCLOUD_REDIRECT_URL,
     grant_type: GRANT_TYPE,
     code_verifier: env.CODE_VERIFIER,
   });
