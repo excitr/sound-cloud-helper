@@ -48,6 +48,7 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
+    SOUNDCLOUD_REDIRECT_URL: process.env.SOUNDCLOUD_REDIRECT_URL,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
