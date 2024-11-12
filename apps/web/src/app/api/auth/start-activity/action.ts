@@ -22,7 +22,7 @@ export const fetchScrapUserData = async (accessToken: string, url: string): Prom
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Error fetching token: ${errorText}`);
+    throw new Error(`Error fetching user data: ${errorText}`);
   }
 
   return UserDataSchema.parse(await response.json());

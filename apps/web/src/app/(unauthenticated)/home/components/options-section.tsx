@@ -3,8 +3,10 @@ import React, { useState } from 'react'; // Explicitly importing React
 import { Box, TextField, Typography } from '@mui/material';
 import RadioButtonGroup from '@/components/form/mui-radio-button';
 import { rem } from '@/theme';
+import { useHomePageContext } from '../context';
 
 export default function OptionsSection(): React.JSX.Element {
+  const { setOptions } = useHomePageContext();
   const [selectedCycleValue, setSelectedCycleValue] = useState<string>(' ');
   const [selectedFollowValue, setSelectedFollowValue] = useState<string>('Follow');
   const [selectedUnfollowValue, setSelectedUnfollowValue] = useState<string>(' ');
@@ -12,6 +14,13 @@ export default function OptionsSection(): React.JSX.Element {
   // Handle changes for the radio buttons
   const handleCycleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     setSelectedCycleValue(event.target.value);
+  };
+
+  const handleScrapeUrlChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    setOptions((prevOptions) => ({
+      ...prevOptions,
+      scrap_url: event.target.value,
+    }));
   };
 
   const handleFollowChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
@@ -32,6 +41,7 @@ export default function OptionsSection(): React.JSX.Element {
           Scrape URL:
         </Typography>
         <TextField
+          onChange={handleScrapeUrlChange}
           variant="outlined"
           sx={{
             width: '43.75rem',

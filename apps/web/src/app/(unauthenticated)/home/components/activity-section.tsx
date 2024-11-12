@@ -27,20 +27,23 @@ const FollowersResponseSchema = z.array(
     username: z.string(),
   }),
 );
+type FollowersData = ReturnType<typeof FollowersResponseSchema.parse>;
+
 export default function ActivitySection(): React.JSX.Element {
   const { activity, setActivity, options } = useHomePageContext();
 
   const handleActivity = async (): Promise<void> => {
     setActivity(true);
+    await runActivity();
+  };
+  const runActivity = async (): Promise<void> => {
     try {
       const response = await fetch('/api/auth/start-activity', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(options),
       });
-      logger.info(response, 'response handleactivity');
 
-      // Check if response status has an error
       if (!response.ok) {
         setActivity(false);
         const errorData = ScrapUserErrorSchema.safeParse(await response.json());
@@ -51,11 +54,9 @@ export default function ActivitySection(): React.JSX.Element {
       }
 
       const userData = ScrapUserResponseSchema.parse(await response.json());
-
       const followers = await fetchFollowers(userData.id);
 
       if (followers) {
-        // Loop each follower and follow them
         for (const follower of followers) {
           const followResponse = await followUser(follower.id);
           if (followResponse) {
@@ -69,18 +70,19 @@ export default function ActivitySection(): React.JSX.Element {
       setActivity(false);
     } catch (error) {
       setActivity(false);
-      toast.error('Something went wrong');
-      logger.error('Fetch error:', error instanceof Error ? error.message : error);
+      toast.error(`Failed to follow ${follower.username}`);
+      logger.error('Fetch run activity error:', error instanceof Error ? error.message : error);
     }
   };
 
-  const fetchFollowers = async (userId: number) => {
+  const fetchFollowers = async (userId: number): Promise<FollowersData | null> => {
     try {
       const response = await fetch(`/api/auth/fetch-followers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: userId, limit: 5 }),
       });
+      logger.info(await response.json(), 'fetchfolloers');
 
       if (!response.ok) {
         logger.error('Followers API Error:', (await response.json()) || 'Unknown error');
@@ -92,7 +94,7 @@ export default function ActivitySection(): React.JSX.Element {
       return followersData;
     } catch (error) {
       logger.error('Fetch Followers Error:', error instanceof Error ? error.message : error);
-      return null;
+      throw error; // Re-throws the error to be handled by the caller
     }
   };
 
@@ -118,7 +120,7 @@ export default function ActivitySection(): React.JSX.Element {
     }
   };
 
-  const cancelActivity = () => {
+  const cancelActivity = (): void => {
     setActivity(false);
   };
 
