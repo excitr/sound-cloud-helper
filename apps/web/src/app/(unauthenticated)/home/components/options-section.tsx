@@ -1,34 +1,19 @@
 'use client';
-import React, { useState } from 'react'; // Explicitly importing React
+
+import React from 'react'; // Explicitly importing React
 import { Box, TextField, Typography } from '@mui/material';
 import RadioButtonGroup from '@/components/form/mui-radio-button';
 import { rem } from '@/theme';
 import { useHomePageContext } from '../context';
 
 export default function OptionsSection(): React.JSX.Element {
-  const { setOptions } = useHomePageContext();
-  const [selectedCycleValue, setSelectedCycleValue] = useState<string>(' ');
-  const [selectedFollowValue, setSelectedFollowValue] = useState<string>('Follow');
-  const [selectedUnfollowValue, setSelectedUnfollowValue] = useState<string>(' ');
+  const { setOptions, options, activity } = useHomePageContext();
 
-  // Handle changes for the radio buttons
-  const handleCycleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    setSelectedCycleValue(event.target.value);
-  };
-
-  const handleScrapeUrlChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     setOptions((prevOptions) => ({
       ...prevOptions,
-      scrap_url: event.target.value,
+      [event.target.name]: event.target.value,
     }));
-  };
-
-  const handleFollowChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    setSelectedFollowValue(event.target.value);
-  };
-
-  const handleUnfollowChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    setSelectedUnfollowValue(event.target.value);
   };
 
   return (
@@ -41,8 +26,11 @@ export default function OptionsSection(): React.JSX.Element {
           Scrape URL:
         </Typography>
         <TextField
-          onChange={handleScrapeUrlChange}
+          name="scrap_url"
+          value={options.scrap_url}
+          onChange={handleChange}
           variant="outlined"
+          disabled={activity}
           sx={{
             width: '43.75rem',
             '& .MuiOutlinedInput-root': {
@@ -54,32 +42,28 @@ export default function OptionsSection(): React.JSX.Element {
 
       {/* Use the RadioButtonGroup component */}
       <Box display="flex" alignItems="center" gap={4}>
-        <RadioButtonGroup
-          name="cycleGroup"
-          selectedValue={selectedCycleValue}
-          onChange={handleCycleChange}
-          options={[{ value: 'cycle', label: 'Cycle' }]}
-        />
+        <RadioButtonGroup name="cycleGroup" options={[{ value: 'cycle', label: 'Cycle' }]} disabled />
 
-        <RadioButtonGroup
-          name="cycleGroup"
-          selectedValue={selectedCycleValue}
-          onChange={handleCycleChange}
-          options={[{ value: 'max', label: 'Max' }]}
-        />
+        <RadioButtonGroup name="cycleGroup" options={[{ value: 'max', label: 'Max' }]} disabled />
       </Box>
 
       <Box display="flex" flexDirection="row" alignItems="start">
         <RadioButtonGroup
-          name="followGroup"
-          selectedValue={selectedFollowValue}
-          onChange={handleFollowChange}
-          options={[{ value: 'Follow', label: 'Follow :' }]}
+          name="follow"
+          selectedValue={options.follow}
+          onChange={handleChange}
+          options={[{ value: 'follow', label: 'Follow :' }]}
           sx={{ my: 4, ml: 4 }}
+          disabled={activity}
         />
 
         <TextField
           variant="outlined"
+          name="follow_count"
+          disabled={activity}
+          onChange={handleChange}
+          value={options.follow_count}
+          type="number"
           sx={{
             width: '7.75rem',
             '& .MuiOutlinedInput-root': {
@@ -93,23 +77,25 @@ export default function OptionsSection(): React.JSX.Element {
 
       <RadioButtonGroup
         name="followGroup"
-        selectedValue={selectedFollowValue}
-        onChange={handleFollowChange}
+        selectedValue={options.pro_follow}
+        onChange={handleChange}
         options={[{ value: 'ProUsers', label: 'Only follow PRO users' }]}
         sx={{ my: 1, ml: 8 }}
+        disabled
       />
 
       <Box display="flex" flexDirection="row" alignItems="start">
         <RadioButtonGroup
           name="unfollowGroup"
-          selectedValue={selectedUnfollowValue}
-          onChange={handleUnfollowChange}
           options={[{ value: 'Unfollow', label: 'Unfollow :' }]}
           sx={{ my: 4, ml: 4 }}
+          disabled
         />
 
         <TextField
           variant="outlined"
+          onChange={handleChange}
+          type="number"
           sx={{
             width: '7.75rem',
             '& .MuiOutlinedInput-root': {
@@ -123,26 +109,23 @@ export default function OptionsSection(): React.JSX.Element {
 
       <RadioButtonGroup
         name="unfollowGroup"
-        selectedValue={selectedUnfollowValue}
-        onChange={handleUnfollowChange}
         options={[{ value: 'UnfollowPassiveFollowings', label: '1st unfollow passive followings' }]}
         sx={{ my: 2, ml: 8 }}
+        disabled
       />
 
       <RadioButtonGroup
         name="unfollowGroup"
-        selectedValue={selectedUnfollowValue}
-        onChange={handleUnfollowChange}
         options={[{ value: 'WhitelistManualFollowings', label: 'Whitelist manual followings' }]}
         sx={{ my: 2, ml: 8 }}
+        disabled
       />
 
       <RadioButtonGroup
         name="ScheduleUnfollowOn"
-        selectedValue={selectedUnfollowValue}
-        onChange={handleUnfollowChange}
         options={[{ value: 'ScheduleUnfollowOn', label: 'Schedule daily (un)following on:' }]}
         sx={{ my: 4 }}
+        disabled
       />
     </Box>
   );

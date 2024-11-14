@@ -5,36 +5,158 @@ import { toast } from 'react-hot-toast';
 import { z } from 'zod';
 import { logger } from '@repo/logger';
 import { rem } from '@/theme';
-import { useHomePageContext } from '../context';
+import { initiallyOptions, useHomePageContext } from '../context';
+import { LogActivitySchema } from '../type';
 
-const ScrapUserErrorSchema = z.object({
-  error: z.string(),
-});
-const ScrapUserResponseSchema = z.object({
+const ScrapUrlDataSchema = z.object({
   id: z.number(),
   followers_count: z.number(),
   followings_count: z.number(),
 });
 
-const FollowResponseSchema = z.object({
-  success: z.boolean(),
-  id: z.number(),
+const LogDataSchema = z.object({
+  id: z.string(),
+  activityType: z.enum(['Follow', 'Like', 'Comment']), // Adjust if needed
+  inputCount: z.number(),
+  accountId: z.number(),
+  completedCount: z.number(),
+  isSuccess: z.union([z.boolean(), z.enum(['Success', 'UnSuccess']).nullable()]),
+  isStatus: z.enum(['Y', 'N']),
+  startTime: z.string().datetime(),
+  endTime: z.string().datetime(),
 });
 
-const FollowersResponseSchema = z.array(
-  z.object({
-    id: z.number(),
-    username: z.string(),
-  }),
-);
-type FollowersData = ReturnType<typeof FollowersResponseSchema.parse>;
+const DataSchema = z.object({
+  scrapUrlData: ScrapUrlDataSchema.nullable(),
+  currentLogData: LogDataSchema.nullable(),
+  lastLogData: LogDataSchema.nullable(),
+  completedCountSum: z.number(),
+});
+
+const ScrapUserErrorSchema = z.object({
+  error: z.string(),
+});
+
+const ProductSchema = z.object({
+  id: z.string().nullable(),
+  name: z.string().nullable(),
+});
+
+const SubscriptionSchema = z.object({
+  product: ProductSchema,
+});
+
+const FollowerSchema = z.object({
+  avatar_url: z.string().url().nullable(),
+  id: z.number(),
+  kind: z.string().nullable(),
+  permalink_url: z.string().url().nullable(),
+  uri: z.string().url().nullable(),
+  username: z.string().nullable(),
+  permalink: z.string().nullable(),
+  created_at: z.string().nullable(),
+  last_modified: z.string().nullable(),
+  first_name: z.string().nullable(),
+  last_name: z.string().nullable(),
+  full_name: z.string().nullable(),
+  city: z.string().nullable(),
+  description: z.string().nullable(),
+  country: z.string().nullable(),
+  track_count: z.number().nullable(),
+  public_favorites_count: z.number().nullable(),
+  reposts_count: z.number().nullable(),
+  followers_count: z.number().nullable(),
+  followings_count: z.number().nullable(),
+  plan: z.string().nullable(),
+  myspace_name: z.string().nullable(),
+  discogs_name: z.string().nullable(),
+  website_title: z.string().nullable(),
+  website: z.string().nullable(),
+  comments_count: z.number().nullable(),
+  online: z.boolean().nullable(),
+  likes_count: z.number().nullable(),
+  playlist_count: z.number().optional().nullable(), // Make this optional
+  subscriptions: z.array(SubscriptionSchema),
+});
+
+const FollowersResponseSchema = z.object({
+  collection: z.array(FollowerSchema),
+  next_href: z.string().url().nullable(),
+});
+
+type FollowersResponseData = z.infer<typeof FollowersResponseSchema>;
+
+type FollowUserResponseData = z.infer<typeof FollowerSchema>;
 
 export default function ActivitySection(): React.JSX.Element {
-  const { activity, setActivity, options } = useHomePageContext();
+  const { activity, setActivity, options, setOptions } = useHomePageContext();
 
+  const verifySoundCouldToken = async () => {
+    const response = await fetch('/api/auth/generate-soundcloud-token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  };
   const handleActivity = async (): Promise<void> => {
-    setActivity(true);
-    await runActivity();
+    if (options.scrap_url && options.follow_count > 0) {
+      setActivity(true);
+      await verifySoundCouldToken();
+
+      await runActivity();
+    } else {
+      toast.error('Please correct your options.');
+    }
+  };
+
+  const fetchFollowersData = async (
+    scrapUrlId: number,
+    followCount: number,
+    nextHref: string,
+  ): Promise<{ successFollowCount: number; nextHref: string | null }> => {
+    try {
+      const followers = await fetchFollowers(scrapUrlId, followCount, nextHref);
+      const successFollowIds: number[] = [];
+
+      if (followers && Boolean(followers.collection.length)) {
+        for (const follower of followers.collection) {
+          const followResponse = await followUser(Number(follower.id));
+          if (followResponse) {
+            successFollowIds.push(followResponse?.id);
+          }
+        }
+        return { successFollowCount: Number(successFollowIds.length), nextHref: followers.next_href }; // Return the length of successful follows
+      }
+
+      return { successFollowCount: 0, nextHref: null };
+    } catch (error) {
+      logger.error('Error fetching followers:', error);
+      return { successFollowCount: 0, nextHref: null };
+    }
+  };
+
+  const recursiveFetchFollowersData = async (
+    scrapUrlId: number,
+    targetFollowCount: number,
+    currentCount: number,
+    nextHref: string | null = null,
+  ): Promise<number> => {
+    const { successFollowCount, nextHref: newNextHref } = await fetchFollowersData(
+      scrapUrlId,
+      Number(targetFollowCount) - Number(currentCount),
+      nextHref ? nextHref : '',
+    );
+
+    const totalCount = Number(currentCount) + Number(successFollowCount);
+
+    if (Number(totalCount) >= Number(targetFollowCount)) {
+      return totalCount;
+    }
+
+    if (newNextHref) {
+      return recursiveFetchFollowersData(scrapUrlId, Number(targetFollowCount), Number(totalCount), newNextHref);
+    }
+
+    return Number(totalCount);
   };
   const runActivity = async (): Promise<void> => {
     try {
@@ -53,52 +175,71 @@ export default function ActivitySection(): React.JSX.Element {
         return;
       }
 
-      const userData = ScrapUserResponseSchema.parse(await response.json());
-      const followers = await fetchFollowers(userData.id);
+      const result = DataSchema.parse(await response.json());
 
-      if (followers) {
-        for (const follower of followers) {
-          const followResponse = await followUser(follower.id);
-          if (followResponse) {
-            toast.success(`Followed ${follower.username}`);
-          } else {
-            toast.error(`Failed to follow ${follower.username}`);
-          }
-        }
+      if (!result.currentLogData && !result.scrapUrlData) {
+        toast.error(`You reached your today limit ${String(result.completedCountSum)}`);
+        setActivity(false);
+        setOptions(initiallyOptions);
+        return;
+      }
+
+      const totalSuccessFollowCount = await recursiveFetchFollowersData(
+        Number(result.scrapUrlData?.id),
+        options.follow_count,
+        0,
+      );
+
+      const endActivityData = {
+        completedCount: totalSuccessFollowCount,
+        endTime: new Date(),
+        isStatus: 'N',
+        isSuccess: Number(totalSuccessFollowCount) === Number(options.follow_count) ? 'Success' : 'UnSuccess',
+        nextHref: '',
+        id: result.currentLogData?.id,
+      };
+      const endActivityResponse = await fetch('/api/auth/end-activity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(endActivityData),
+      });
+
+      const endActivityResponce = LogActivitySchema.parse(await endActivityResponse.json());
+
+      if (endActivityResponce.id) {
+        toast.success(`Followed ${String(totalSuccessFollowCount)} users`);
       }
 
       setActivity(false);
+      setOptions(initiallyOptions);
     } catch (error) {
       setActivity(false);
-      toast.error(`Failed to follow ${follower.username}`);
+      setOptions(initiallyOptions);
       logger.error('Fetch run activity error:', error instanceof Error ? error.message : error);
     }
   };
 
-  const fetchFollowers = async (userId: number): Promise<FollowersData | null> => {
+  const fetchFollowers = async (userId: number, limit: number, url: string): Promise<FollowersResponseData | null> => {
     try {
       const response = await fetch(`/api/auth/fetch-followers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: userId, limit: 5 }),
+        body: JSON.stringify({ id: userId, limit, url }),
       });
-      logger.info(await response.json(), 'fetchfolloers');
 
       if (!response.ok) {
         logger.error('Followers API Error:', (await response.json()) || 'Unknown error');
         return null;
       }
 
-      const followersData = FollowersResponseSchema.parse(await response.json());
-
-      return followersData;
+      return FollowersResponseSchema.parse(await response.json());
     } catch (error) {
-      logger.error('Fetch Followers Error:', error instanceof Error ? error.message : error);
-      throw error; // Re-throws the error to be handled by the caller
+      logger.error('Fetch Followers Error:', error);
+      return null; // Explicitly return null in case of an error
     }
   };
 
-  const followUser = async (userId: number) => {
+  const followUser = async (userId: number): Promise<FollowUserResponseData | null | undefined> => {
     try {
       const response = await fetch('/api/auth/follow', {
         method: 'POST',
@@ -106,22 +247,18 @@ export default function ActivitySection(): React.JSX.Element {
         body: JSON.stringify({ id: userId }),
       });
 
-      if (!response.ok) {
-        logger.error('Follow API Error:', (await response.json()) || 'Unknown error');
-        return false;
-      }
-
-      const followData = FollowResponseSchema.parse(await response.json());
-
-      return followData.success;
+      return FollowerSchema.parse(await response.json());
     } catch (error) {
       logger.error('Follow User Error:', error instanceof Error ? error.message : error);
-      return false;
     }
   };
 
   const cancelActivity = (): void => {
+    setOptions(initiallyOptions);
     setActivity(false);
+  };
+  const handleActivityClick = (): void => {
+    void handleActivity();
   };
 
   return (
@@ -140,7 +277,7 @@ export default function ActivitySection(): React.JSX.Element {
               fontSize: rem(25.6),
               textTransform: 'none',
             }}
-            onClick={handleActivity}
+            onClick={handleActivityClick}
           >
             <Image
               src="/main-page/Play-icon.svg"
@@ -154,7 +291,7 @@ export default function ActivitySection(): React.JSX.Element {
           </Button>
         )}
 
-        {activity && (
+        {Boolean(activity) && (
           <Button
             sx={{
               color: '#444444',

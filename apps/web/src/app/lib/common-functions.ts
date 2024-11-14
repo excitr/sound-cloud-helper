@@ -3,7 +3,7 @@ import { logger } from '@repo/logger';
 import { cookies } from 'next/headers';
 import { type JwtPayload, sign, verify } from 'jsonwebtoken';
 import { env } from '@/env.mjs';
-import { SOUNDCLOUD_TOKEN_KEY } from '../modules/constant';
+import { SOUNDCLOUD_ACCOUNT_ID, SOUNDCLOUD_TOKEN_KEY } from '../modules/constant';
 
 export const logAndRespondError = (error: string, status: number): NextResponse<{ error: string }> => {
   logger.error(error);
@@ -17,11 +17,18 @@ export const getSoudCloudeTokenFromCookie = async (): Promise<string | null> => 
   return accessToken ?? null;
 };
 
+export const getAccountIdFromCookie = async (): Promise<number> => {
+  const cookieStore = await cookies();
+  const accountId = cookieStore.get(SOUNDCLOUD_ACCOUNT_ID)?.value;
+
+  return Number(accountId);
+};
+
 export const generateAccessToken = (user: { id: number; email: string }): string =>
-  sign({ id: user.id, email: user.email }, env.ACCESS_TOKEN_SECRET, { expiresIn: '1m' });
+  sign({ id: user.id, email: user.email }, env.ACCESS_TOKEN_SECRET, { expiresIn: '60m' });
 
 export const generateRefreshToken = (user: { id: number; email: string }): string =>
-  sign({ id: user.id, email: user.email }, env.REFRESH_TOKEN_SECRET, { expiresIn: '20m' });
+  sign({ id: user.id, email: user.email }, env.REFRESH_TOKEN_SECRET, { expiresIn: '131400m' });
 
 export const verifyAccessToken = (token: string): string | JwtPayload => verify(token, env.ACCESS_TOKEN_SECRET);
 

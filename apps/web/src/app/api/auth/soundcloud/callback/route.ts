@@ -7,7 +7,11 @@ import { logger } from '@repo/logger';
 import { cookies } from 'next/headers';
 import { type JwtPayload, verify } from 'jsonwebtoken';
 import { env } from '@/env.mjs';
-import { GRANT_TYPE, SOUNDCLOUD_ME_URL, SOUNDCLOUD_TOKEN_KEY, TOKEN_KEY, TOKEN_URL } from '@/app/modules/constant.ts';
+import {
+  GRANT_TYPE,
+  SOUNDCLOUD_ACCOUNT_ID,
+  SOUNDCLOUD_ME_URL,
+   SOUNDCLOUD_TOKEN_KEY, TOKEN_KEY, TOKEN_URL } from '@/app/modules/constant.ts';
 
 const HTTP_STATUS = {
   BAD_REQUEST: 400,
@@ -109,6 +113,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     const cookieStore = await cookies();
 
     cookieStore.set(SOUNDCLOUD_TOKEN_KEY, tokenInfo.access_token);
+    cookieStore.set(SOUNDCLOUD_ACCOUNT_ID, meData.id.toString());
 
     const inputData: Prisma.SoundCloudAccountCreateInput = {
       userId: Number(userId),

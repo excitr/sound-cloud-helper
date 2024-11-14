@@ -4,9 +4,10 @@ import { Radio, FormControlLabel, RadioGroup } from '@mui/material';
 interface RadioButtonGroupProps {
   options: { value: string; label: string }[];
   name: string;
-  selectedValue: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  selectedValue?: string | number;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   sx?: object;
+  disabled?: boolean;
 }
 
 // Refactor to a function declaration
@@ -16,6 +17,7 @@ function RadioButtonGroup({
   selectedValue,
   onChange,
   sx = {},
+  disabled = false,
 }: RadioButtonGroupProps): React.JSX.Element {
   return (
     <RadioGroup name={name} value={selectedValue} onChange={onChange} sx={sx}>
@@ -25,6 +27,7 @@ function RadioButtonGroup({
           value={option.value}
           control={
             <Radio
+              disabled={disabled}
               sx={{
                 '& .MuiSvgIcon-root': {
                   backgroundColor: '#DDDDDD', // Background color for unchecked state

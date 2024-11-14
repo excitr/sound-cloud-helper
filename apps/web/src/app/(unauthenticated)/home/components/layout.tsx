@@ -32,13 +32,13 @@ function Layout(): React.JSX.Element {
           <Image
             src="/logo.svg"
             alt="Logo"
-            width={24} // Set width and height
-            height={24}
+            width={120} // Set width and height
+            height={32}
           />
         </Box>
 
         {/* Navigation Links */}
-        <Box display="flex" gap={4} alignItems="center" fontWeight={400} textTransform="none" ml={24}>
+        <Box display="flex" gap={4} alignItems="center" fontWeight={400} textTransform="none">
           {['Main', 'About', 'Prices', 'Support', 'Profile'].map((item) => (
             <Button key={item} color="inherit" sx={{ textTransform: 'none', fontSize: rem(18), fontWeight: '400' }}>
               {item}

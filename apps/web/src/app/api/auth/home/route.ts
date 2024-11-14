@@ -35,7 +35,7 @@ const fetchMeData = async (accessToken: string): Promise<MeData> => {
 export async function GET(): Promise<NextResponse> {
   try {
     const accessToken = await getSoudCloudeTokenFromCookie();
-    logger.info(accessToken);
+
     if (!accessToken) {
       return logAndRespondError('Access token is missing or expired.', HTTP_STATUS.UNAUTHORIZED);
     }
@@ -43,7 +43,6 @@ export async function GET(): Promise<NextResponse> {
     const meData: MeData = await fetchMeData(accessToken);
 
     // Optionally, store the `meData` in your database or log it.
-    logger.info(`Fetched MeData for user: ${meData.username}`);
 
     return NextResponse.json(meData);
   } catch (error) {

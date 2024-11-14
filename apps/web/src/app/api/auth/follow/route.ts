@@ -6,9 +6,9 @@ import { HTTP_STATUS } from '@/app/modules/constant.ts';
 import { getSoudCloudeTokenFromCookie, logAndRespondError } from '@/app/lib/common-functions';
 import { followUser } from './actions';
 
-export async function POST(request: Request): Promise<NextResponse> {
+export async function POST(request: Request): Promise<NextResponse | null> {
   try {
-    const body = (await request.json()) as { id: number; limit: number };
+    const body = (await request.json()) as { id: number };
 
     const accessToken = await getSoudCloudeTokenFromCookie();
 
@@ -16,15 +16,11 @@ export async function POST(request: Request): Promise<NextResponse> {
       return logAndRespondError('Access token is missing or expired.', HTTP_STATUS.UNAUTHORIZED);
     }
 
-    await followUser(accessToken, body.id);
+    const response = await followUser(accessToken, body.id);
 
-    // if (!success) {
-    //   return logAndRespondError('Failed to follow the user.', HTTP_STATUS.INTERNAL_SERVER_ERROR);
-    // }
-
-    return NextResponse.json({ success: true, id: body.id });
+    return NextResponse.json(response);
   } catch (error) {
-    logger.error(error, `POST request error`);
-    return logAndRespondError('Failed to fetch followers data.', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    logger.error(error, `POST request follow api error`);
+    return null;
   }
 }

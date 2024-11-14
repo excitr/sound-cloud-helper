@@ -18,21 +18,21 @@ interface ProfileHeaderProps {
 export default function ProfileHeader({ userInfo }: ProfileHeaderProps): React.JSX.Element {
   return (
     <Box
+      width="90%"
       py={10}
-      mt={14}
-      mx={20}
+      ml="5%"
       display="flex"
       alignItems="center"
       justifyContent="left"
       pl={{ xs: 4, sm: 8, md: 12, lg: 24 }}
-      height={{ xs: 'auto', md: '35vh' }}
+      height={{ xs: 'auto' }}
       borderRadius={8}
       color="#fff"
       sx={{
         backgroundImage: 'url(/bg.avif)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        flexDirection: { xs: 'column', sm: 'row' },
+        flexDirection: { xs: 'row' },
         textAlign: { xs: 'center', sm: 'left' },
       }}
     >

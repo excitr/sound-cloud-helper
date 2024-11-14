@@ -542,6 +542,36 @@ model SoundCloudAccount {
   @@map("sound_cloud_account")
 }
 
+model LogActivity {
+  id             String       @id @default(cuid())
+  activityType   ActivityType @map("activity_type")
+  inputCount     Int          @map("input_count")
+  accountId      Int          @map("account_id")
+  completedCount Int          @default(0) @map("completed_count")
+  isSuccess      Success?     @map("is_success")
+  isStatus       Status       @map("is_status")
+  nextHref       String?      @map("next_href")
+  startTime      DateTime     @default(now()) @map("start_time")
+  endTime        DateTime     @default(now()) @map("end_time")
+
+  @@map("log_activity")
+}
+
+enum Success {
+  Success
+  UnSuccess
+}
+
+enum Status {
+  Y
+  N
+}
+
+enum ActivityType {
+  Follow
+  UnFollow
+}
+
 enum AccountPaymentPaymentActive {
   Y
   N

@@ -11,7 +11,23 @@ export interface HomePageContextType {
   activity: boolean;
   options: OptionsSchema;
   setOptions: Dispatch<SetStateAction<OptionsSchema>>; // Add this line
+  fetchProfileData: () => Promise<void>;
 }
+
+export const initiallyOptions = {
+  scrap_url: '',
+  follow: 'follow',
+  pro_follow: 'pro_follow',
+  unfollow: false,
+  passive_follow: false,
+  manual_follow: false,
+  schedule_activity: false,
+  schedule_time: '',
+  cycle: false,
+  max: false,
+  follow_count: 0,
+  unfollow_count: 0,
+};
 
 const HomePageContext = createContext<HomePageContextType>({
   handleChange: () => {
@@ -23,8 +39,8 @@ const HomePageContext = createContext<HomePageContextType>({
   activity: false,
   options: {
     scrap_url: '',
-    follow: true,
-    pro_follow: false,
+    follow: '',
+    pro_follow: 'pro_follow',
     unfollow: false,
     passive_follow: false,
     manual_follow: false,
@@ -37,6 +53,9 @@ const HomePageContext = createContext<HomePageContextType>({
   },
   setOptions: () => {
     // no-op function as placeholder
+  },
+  fetchProfileData: async () => {
+    // no-op function returning a Promise
   },
 });
 

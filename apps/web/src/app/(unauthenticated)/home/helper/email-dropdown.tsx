@@ -35,8 +35,8 @@ function EmailDropdown({
             borderRadius: '50px',
             textTransform: 'none',
             color: '#444',
-            paddingLeft: '10px',
-            paddingRight: '10px',
+            pl: '10px',
+            pr: '10px',
             '&:hover': {
               borderColor: '#444',
               color: '#444',
@@ -46,15 +46,17 @@ function EmailDropdown({
           {userEmail}
         </Button>
       ) : (
-        <IconButton
-          size="small"
-          onMouseEnter={() => {
-            setIsHovered(true);
-          }}
-          sx={{ border: '1px solid #444', borderRadius: '50%', padding: '4px', color: '#444' }}
-        >
-          <ArrowDropDownIcon fontSize="inherit" />
-        </IconButton>
+        <Box ml="149px">
+          <IconButton
+            size="small"
+            onMouseEnter={() => {
+              setIsHovered(true);
+            }}
+            sx={{ border: '1px solid #444', borderRadius: '50%', p: '4px', color: '#444' }}
+          >
+            <ArrowDropDownIcon fontSize="inherit" />
+          </IconButton>
+        </Box>
       )}
 
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>

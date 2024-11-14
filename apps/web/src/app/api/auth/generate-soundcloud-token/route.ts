@@ -3,7 +3,10 @@ import { logger } from '@repo/logger';
 import { prisma } from '@repo/database';
 import { z } from 'zod';
 import { env } from '@/env.mjs';
-import { OAUTH_TOKEN_URL, REFRESH_GRANT_TYPE } from '@/app/modules/constant';
+import { HTTP_STATUS, OAUTH_TOKEN_URL, REFRESH_GRANT_TYPE, SOUNDCLOUD_TOKEN_KEY } from '@/app/modules/constant';
+import { getAccountIdFromCookie, logAndRespondError } from '@/app/lib/common-functions';
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
 
 const TokenResponseSchema = z.object({
   refresh_token: z.string(),
@@ -15,10 +18,15 @@ const TokenResponseSchema = z.object({
 
 export async function POST(): Promise<Response> {
   try {
+    const accountId = await getAccountIdFromCookie();
+    if (!accountId) {
+      return logAndRespondError('Account id is missing', HTTP_STATUS.UNAUTHORIZED);
+    }
     const currentTimeMinus10Minutes = new Date(Date.now() - 10 * 60 * 1000); // Get time 10 minutes ago in seconds
 
     const account = await prisma.soundCloudAccount.findFirst({
       where: {
+        soundCloudAccountId: accountId,
         accessTokenExpireAt: {
           lt: currentTimeMinus10Minutes,
         },
@@ -44,7 +52,6 @@ export async function POST(): Promise<Response> {
       },
       body: data.toString(),
     });
-
     const responseData = TokenResponseSchema.parse(await response.json());
 
     try {
@@ -56,9 +63,13 @@ export async function POST(): Promise<Response> {
           accessTokenExpireAt: new Date(Date.now() + responseData.expires_in * 1000),
         },
       });
+      const cookieStore = await cookies();
+      cookieStore.set(SOUNDCLOUD_TOKEN_KEY, responseData.access_token);
+      return NextResponse.json({ success: true });
     } catch (error) {
       if (error instanceof Error) {
         logger.error(error.message);
+        return NextResponse.json({ success: false });
       }
     }
 
