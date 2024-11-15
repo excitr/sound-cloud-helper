@@ -2,7 +2,6 @@
 
 import { z } from 'zod';
 import { SOUNDCLOUD_RESOLVE_URL } from '@/app/modules/constant';
-import { logger } from '@repo/logger';
 
 const UserDataSchema = z.object({
   id: z.number(),
@@ -27,5 +26,4 @@ export const fetchScrapUserData = async (accessToken: string, url: string): Prom
   }
 
   return UserDataSchema.parse(await response.json());
-  //return await response.json();
 };

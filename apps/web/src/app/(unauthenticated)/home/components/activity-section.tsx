@@ -1,130 +1,71 @@
 'use client';
+
 import { Box, Button, Typography } from '@mui/material';
 import Image from 'next/image';
 import { toast } from 'react-hot-toast';
-import { z } from 'zod';
 import { logger } from '@repo/logger';
 import { rem } from '@/theme';
+import { fetchFollowerData } from '@/app/api/auth/fetch-followers/actions';
+import { type APIResponse, followUserData } from '@/app/api/auth/follow/actions';
 import { initiallyOptions, useHomePageContext } from '../context';
-import { LogActivitySchema } from '../type';
+import { LogActivitySchema, ScrapUserErrorSchema, StartActivitySchema, VerifyTokenResponceSchema } from '../type';
+import { type VerifyTokenResponceData } from '../type';
 
-const ScrapUrlDataSchema = z.object({
-  id: z.number(),
-  followers_count: z.number(),
-  followings_count: z.number(),
-});
+export const verifySoundCouldToken = async (): Promise<VerifyTokenResponceData> => {
+  const response = await fetch('/api/auth/generate-soundcloud-token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  });
 
-const LogDataSchema = z.object({
-  id: z.string(),
-  activityType: z.enum(['Follow', 'Like', 'Comment']), // Adjust if needed
-  inputCount: z.number(),
-  accountId: z.number(),
-  completedCount: z.number(),
-  isSuccess: z.union([z.boolean(), z.enum(['Success', 'UnSuccess']).nullable()]),
-  isStatus: z.enum(['Y', 'N']),
-  startTime: z.string().datetime(),
-  endTime: z.string().datetime(),
-});
+  if (!response.ok) {
+    throw new Error('Oops! Something went wrong while connecting to the soundcloud service. Please try again later.');
+  }
 
-const DataSchema = z.object({
-  scrapUrlData: ScrapUrlDataSchema.nullable(),
-  currentLogData: LogDataSchema.nullable(),
-  lastLogData: LogDataSchema.nullable(),
-  completedCountSum: z.number(),
-});
+  const result = VerifyTokenResponceSchema.parse(await response.json());
 
-const ScrapUserErrorSchema = z.object({
-  error: z.string(),
-});
-
-const ProductSchema = z.object({
-  id: z.string().nullable(),
-  name: z.string().nullable(),
-});
-
-const SubscriptionSchema = z.object({
-  product: ProductSchema,
-});
-
-const FollowerSchema = z.object({
-  avatar_url: z.string().url().nullable(),
-  id: z.number(),
-  kind: z.string().nullable(),
-  permalink_url: z.string().url().nullable(),
-  uri: z.string().url().nullable(),
-  username: z.string().nullable(),
-  permalink: z.string().nullable(),
-  created_at: z.string().nullable(),
-  last_modified: z.string().nullable(),
-  first_name: z.string().nullable(),
-  last_name: z.string().nullable(),
-  full_name: z.string().nullable(),
-  city: z.string().nullable(),
-  description: z.string().nullable(),
-  country: z.string().nullable(),
-  track_count: z.number().nullable(),
-  public_favorites_count: z.number().nullable(),
-  reposts_count: z.number().nullable(),
-  followers_count: z.number().nullable(),
-  followings_count: z.number().nullable(),
-  plan: z.string().nullable(),
-  myspace_name: z.string().nullable(),
-  discogs_name: z.string().nullable(),
-  website_title: z.string().nullable(),
-  website: z.string().nullable(),
-  comments_count: z.number().nullable(),
-  online: z.boolean().nullable(),
-  likes_count: z.number().nullable(),
-  playlist_count: z.number().optional().nullable(), // Make this optional
-  subscriptions: z.array(SubscriptionSchema),
-});
-
-const FollowersResponseSchema = z.object({
-  collection: z.array(FollowerSchema),
-  next_href: z.string().url().nullable(),
-});
-
-type FollowersResponseData = z.infer<typeof FollowersResponseSchema>;
-
-type FollowUserResponseData = z.infer<typeof FollowerSchema>;
+  if (!result.success) {
+    toast.error('');
+  }
+  return result;
+};
 
 export default function ActivitySection(): React.JSX.Element {
   const { activity, setActivity, options, setOptions } = useHomePageContext();
 
-  const verifySoundCouldToken = async () => {
-    const response = await fetch('/api/auth/generate-soundcloud-token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    });
-  };
   const handleActivity = async (): Promise<void> => {
     if (options.scrap_url && options.follow_count > 0) {
       setActivity(true);
-      await verifySoundCouldToken();
 
-      await runActivity();
+      const tokenData: VerifyTokenResponceData | undefined = await verifySoundCouldToken();
+
+      if (tokenData.success) {
+        await runActivity();
+      }
     } else {
-      toast.error('Please correct your options.');
+      toast.error('Plz login with soundCloud');
     }
   };
 
-  const fetchFollowersData = async (
-    scrapUrlId: number,
+  const fetchFolloersList = async (
+    scrapUrlId: string,
     followCount: number,
     nextHref: string,
   ): Promise<{ successFollowCount: number; nextHref: string | null }> => {
     try {
-      const followers = await fetchFollowers(scrapUrlId, followCount, nextHref);
+      const followers = await fetchFollowerData(nextHref, scrapUrlId, String(followCount));
+
       const successFollowIds: number[] = [];
 
       if (followers && Boolean(followers.collection.length)) {
         for (const follower of followers.collection) {
-          const followResponse = await followUser(Number(follower.id));
-          if (followResponse) {
-            successFollowIds.push(followResponse?.id);
+          const followResponse: APIResponse = await followUserData(String(follower.id));
+          if (followResponse.success) {
+            if (followResponse.data) {
+              successFollowIds.push(followResponse.data.id);
+            }
           }
         }
-        return { successFollowCount: Number(successFollowIds.length), nextHref: followers.next_href }; // Return the length of successful follows
+        return { successFollowCount: Number(successFollowIds.length), nextHref: followers.next_href };
       }
 
       return { successFollowCount: 0, nextHref: null };
@@ -135,13 +76,13 @@ export default function ActivitySection(): React.JSX.Element {
   };
 
   const recursiveFetchFollowersData = async (
-    scrapUrlId: number,
+    scrapUrlId: string,
     targetFollowCount: number,
     currentCount: number,
     nextHref: string | null = null,
   ): Promise<number> => {
-    const { successFollowCount, nextHref: newNextHref } = await fetchFollowersData(
-      scrapUrlId,
+    const { successFollowCount, nextHref: newNextHref } = await fetchFolloersList(
+      String(scrapUrlId),
       Number(targetFollowCount) - Number(currentCount),
       nextHref ? nextHref : '',
     );
@@ -153,7 +94,12 @@ export default function ActivitySection(): React.JSX.Element {
     }
 
     if (newNextHref) {
-      return recursiveFetchFollowersData(scrapUrlId, Number(targetFollowCount), Number(totalCount), newNextHref);
+      return recursiveFetchFollowersData(
+        String(scrapUrlId),
+        Number(targetFollowCount),
+        Number(totalCount),
+        newNextHref,
+      );
     }
 
     return Number(totalCount);
@@ -175,7 +121,7 @@ export default function ActivitySection(): React.JSX.Element {
         return;
       }
 
-      const result = DataSchema.parse(await response.json());
+      const result = StartActivitySchema.parse(await response.json());
 
       if (!result.currentLogData && !result.scrapUrlData) {
         toast.error(`You reached your today limit ${String(result.completedCountSum)}`);
@@ -185,7 +131,7 @@ export default function ActivitySection(): React.JSX.Element {
       }
 
       const totalSuccessFollowCount = await recursiveFetchFollowersData(
-        Number(result.scrapUrlData?.id),
+        String(result.scrapUrlData?.id),
         options.follow_count,
         0,
       );
@@ -196,6 +142,7 @@ export default function ActivitySection(): React.JSX.Element {
         isStatus: 'N',
         isSuccess: Number(totalSuccessFollowCount) === Number(options.follow_count) ? 'Success' : 'UnSuccess',
         nextHref: '',
+        followUserId: result.scrapUrlData?.id,
         id: result.currentLogData?.id,
       };
       const endActivityResponse = await fetch('/api/auth/end-activity', {
@@ -219,45 +166,11 @@ export default function ActivitySection(): React.JSX.Element {
     }
   };
 
-  const fetchFollowers = async (userId: number, limit: number, url: string): Promise<FollowersResponseData | null> => {
-    try {
-      const response = await fetch(`/api/auth/fetch-followers`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: userId, limit, url }),
-      });
-
-      if (!response.ok) {
-        logger.error('Followers API Error:', (await response.json()) || 'Unknown error');
-        return null;
-      }
-
-      return FollowersResponseSchema.parse(await response.json());
-    } catch (error) {
-      logger.error('Fetch Followers Error:', error);
-      return null; // Explicitly return null in case of an error
-    }
-  };
-
-  const followUser = async (userId: number): Promise<FollowUserResponseData | null | undefined> => {
-    try {
-      const response = await fetch('/api/auth/follow', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: userId }),
-      });
-
-      return FollowerSchema.parse(await response.json());
-    } catch (error) {
-      logger.error('Follow User Error:', error instanceof Error ? error.message : error);
-    }
-  };
-
   const cancelActivity = (): void => {
     setOptions(initiallyOptions);
     setActivity(false);
   };
-  const handleActivityClick = (): void => {
+  const startActivityClick = (): void => {
     void handleActivity();
   };
 
@@ -277,7 +190,7 @@ export default function ActivitySection(): React.JSX.Element {
               fontSize: rem(25.6),
               textTransform: 'none',
             }}
-            onClick={handleActivityClick}
+            onClick={startActivityClick}
           >
             <Image
               src="/main-page/Play-icon.svg"
@@ -300,6 +213,7 @@ export default function ActivitySection(): React.JSX.Element {
               textTransform: 'none',
               visibility: 'visible',
             }}
+            disabled
             onClick={cancelActivity}
           >
             <Image

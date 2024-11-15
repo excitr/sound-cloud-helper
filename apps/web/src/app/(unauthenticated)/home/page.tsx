@@ -3,15 +3,16 @@
 import { useState, useEffect } from 'react';
 import { logger } from '@repo/logger';
 import { z } from 'zod';
-import ActivitySection from './components/activity-section';
+import { Box } from '@mui/material';
+import { fetchMeData } from '@/app/api/auth/home/actions';
+import ActivitySection, { verifySoundCouldToken } from './components/activity-section';
 import Layout from './components/layout';
 import LogSection from './components/log-section';
 import OptionsSection from './components/options-section';
 import PricingSection from './components/pricing-section';
 import ProfileHeader from './components/profile-header';
 import HomePageContext from './context';
-import type { OptionsSchema } from './type';
-import { Box } from '@mui/material';
+import type { OptionsSchema, VerifyTokenResponceData } from './type';
 
 const MeDataSchema = z.object({
   id: z.number(),
@@ -42,11 +43,13 @@ export default function HomePage(): React.JSX.Element {
 
   const fetchProfileData = async (): Promise<void> => {
     try {
-      const response = await fetch('/api/auth/home', {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      setProfileData(MeDataSchema.parse(await response.json()));
+      const tokenData: VerifyTokenResponceData | undefined = await verifySoundCouldToken();
+
+      if (tokenData.success) {
+        const data = await fetchMeData();
+
+        setProfileData(MeDataSchema.parse(data));
+      }
     } catch (error) {
       logger.error('Failed to fetch profile data:', error);
     }

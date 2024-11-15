@@ -10,7 +10,6 @@ function Layout(): React.JSX.Element {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
-    // Safely assign the event target to anchorEl, since it is guaranteed to be an HTMLElement
     setAnchorEl(event.currentTarget);
   };
 
@@ -27,7 +26,6 @@ function Layout(): React.JSX.Element {
   return (
     <AppBar position="fixed" sx={{ backgroundColor: '#F4F4F4', color: '#444', py: 1 }}>
       <Toolbar sx={{ justifyContent: 'space-between' }}>
-        {/* Logo and Title */}
         <Box display="flex" alignItems="center">
           <Image
             src="/logo.svg"
@@ -37,7 +35,6 @@ function Layout(): React.JSX.Element {
           />
         </Box>
 
-        {/* Navigation Links */}
         <Box display="flex" gap={4} alignItems="center" fontWeight={400} textTransform="none">
           {['Main', 'About', 'Prices', 'Support', 'Profile'].map((item) => (
             <Button key={item} color="inherit" sx={{ textTransform: 'none', fontSize: rem(18), fontWeight: '400' }}>
@@ -49,7 +46,6 @@ function Layout(): React.JSX.Element {
           </Typography>
         </Box>
 
-        {/* Email Dropdown, Status Indicator, and Sign Out */}
         <Box display="flex" alignItems="center" gap={1}>
           <EmailDropdown
             userEmail={userEmail}
@@ -59,7 +55,6 @@ function Layout(): React.JSX.Element {
             handleSignOut={handleSignOut}
           />
 
-          {/* Status Indicator */}
           <IconButton size="large" sx={{ color: '#A7FF9F' }}>
             <CircleIcon fontSize="large" />
 
@@ -77,7 +72,6 @@ function Layout(): React.JSX.Element {
             </Box>
           </IconButton>
 
-          {/* Sign Out Button */}
           <Button
             variant="outlined"
             onClick={handleSignOut}

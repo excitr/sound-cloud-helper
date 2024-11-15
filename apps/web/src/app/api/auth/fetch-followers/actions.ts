@@ -1,58 +1,29 @@
-import { z } from 'zod';
-import { logger } from '@repo/logger';
+'use server';
+import { type FollowersResponseData, FollowersResponseSchema } from '@/app/(unauthenticated)/home/type';
+import { getSoudCloudeTokenFromCookie } from '@/app/lib/common-functions';
 import { SOUNDCLOUD_USERS_FOLLOWERS_URL } from '@/app/modules/constant';
 
-const ProductSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-});
+export const fetchFollowerData = async (
+  url: string,
+  userId: string,
+  limit: string,
+): Promise<FollowersResponseData | null> => {
+  const accessToken = await getSoudCloudeTokenFromCookie();
 
-const SubscriptionSchema = z.object({
-  product: ProductSchema,
-});
+  if (!accessToken) {
+    return null;
+  }
 
-const FollowerSchema = z.object({
-  avatar_url: z.string().url(),
-  id: z.number(),
-  kind: z.string(),
-  permalink_url: z.string().url(),
-  uri: z.string().url(),
-  username: z.string(),
-  permalink: z.string(),
-  created_at: z.string(),
-  last_modified: z.string(),
-  first_name: z.string().nullable(),
-  last_name: z.string().nullable(),
-  full_name: z.string(),
-  city: z.string().nullable(),
-  description: z.string().nullable(),
-  country: z.string().nullable(),
-  track_count: z.number(),
-  public_favorites_count: z.number(),
-  reposts_count: z.number(),
-  followers_count: z.number(),
-  followings_count: z.number(),
-  plan: z.string(),
-  myspace_name: z.string().nullable(),
-  discogs_name: z.string().nullable(),
-  website_title: z.string().nullable(),
-  website: z.string().nullable(),
-  comments_count: z.number(),
-  online: z.boolean(),
-  likes_count: z.number(),
-  playlist_count: z.number(),
-  subscriptions: z.array(SubscriptionSchema),
-});
+  let finalUrl = `${SOUNDCLOUD_USERS_FOLLOWERS_URL}/${userId}/followers?limit=${limit}`;
 
-const FollowersResponseSchema = z.object({
-  collection: z.array(FollowerSchema),
-  next_href: z.string().url().nullable(),
-});
+  if (url) {
+    const regex = /(?:[?&]cursor=(?<cursor>\d+))/;
+    const match = regex.exec(url);
 
-type FollowersResponseData = z.infer<typeof FollowersResponseSchema>;
-
-export const fetchFollowerData = async (accessToken: string, url: string): Promise<FollowersResponseData> => {
-  const response = await fetch(url, {
+    const cursor = match ? match[1] : '';
+    finalUrl = `${SOUNDCLOUD_USERS_FOLLOWERS_URL}/${userId}/followers?page_size=${limit}&cursor=${cursor}`;
+  }
+  const response = await fetch(finalUrl, {
     method: 'GET',
     headers: {
       Accept: 'application/json; charset=utf-8',

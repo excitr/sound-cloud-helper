@@ -2,11 +2,12 @@
 import { logger } from '@repo/logger';
 import { prisma } from '@repo/database';
 import { z } from 'zod';
-import { env } from '@/env.mjs';
-import { HTTP_STATUS, OAUTH_TOKEN_URL, REFRESH_GRANT_TYPE, SOUNDCLOUD_TOKEN_KEY } from '@/app/modules/constant';
-import { getAccountIdFromCookie, logAndRespondError } from '@/app/lib/common-functions';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { env } from '@/env.mjs';
+import { OAUTH_TOKEN_URL, REFRESH_GRANT_TYPE, SOUNDCLOUD_TOKEN_KEY } from '@/app/modules/constant';
+import { getAccountIdFromCookie } from '@/app/lib/common-functions';
+import { encodedSoundCloudToken } from '../sign-in/login-helper';
 
 const TokenResponseSchema = z.object({
   refresh_token: z.string(),
@@ -16,17 +17,18 @@ const TokenResponseSchema = z.object({
   scope: z.string(),
 });
 
-export async function POST(): Promise<Response> {
+export async function POST(): Promise<Response | null> {
   try {
     const accountId = await getAccountIdFromCookie();
+
     if (!accountId) {
-      return logAndRespondError('Account id is missing', HTTP_STATUS.UNAUTHORIZED);
+      return null;
     }
     const currentTimeMinus10Minutes = new Date(Date.now() - 10 * 60 * 1000); // Get time 10 minutes ago in seconds
 
     const account = await prisma.soundCloudAccount.findFirst({
       where: {
-        soundCloudAccountId: accountId,
+        id: String(accountId),
         accessTokenExpireAt: {
           lt: currentTimeMinus10Minutes,
         },
@@ -34,7 +36,7 @@ export async function POST(): Promise<Response> {
     });
 
     if (!account) {
-      throw new Error('Account not found');
+      return NextResponse.json({ success: true });
     }
 
     // Prepare the request body
@@ -50,7 +52,7 @@ export async function POST(): Promise<Response> {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: data.toString(),
+      body: String(data),
     });
     const responseData = TokenResponseSchema.parse(await response.json());
 
@@ -64,8 +66,10 @@ export async function POST(): Promise<Response> {
         },
       });
       const cookieStore = await cookies();
-      cookieStore.set(SOUNDCLOUD_TOKEN_KEY, responseData.access_token);
-      return NextResponse.json({ success: true });
+      cookieStore.set(SOUNDCLOUD_TOKEN_KEY, encodedSoundCloudToken({ access_token: responseData.access_token }));
+      return NextResponse.json({
+        success: true,
+      });
     } catch (error) {
       if (error instanceof Error) {
         logger.error(error.message);
@@ -80,7 +84,7 @@ export async function POST(): Promise<Response> {
   } catch (error) {
     logger.error('Error fetching access token:', error instanceof Error ? error.message : String(error));
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'An unknown error occurred' }),
+      JSON.stringify({ error: error instanceof Error ? error.message : 'An unknown error occurred', success: false }),
       {
         status: 500,
         headers: { 'Content-Type': 'application/json' },

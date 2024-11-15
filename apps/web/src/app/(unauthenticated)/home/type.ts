@@ -33,7 +33,8 @@ export const LogActivitySchema = z.object({
   id: z.string(),
   activityType: z.string(),
   inputCount: z.number(),
-  accountId: z.number(),
+  accountId: z.string(),
+  followUserId: z.number(),
   completedCount: z.number(),
   isSuccess: z.string(),
   isStatus: z.string(),
@@ -43,50 +44,88 @@ export const LogActivitySchema = z.object({
 });
 
 const ProductSchema = z.object({
-  id: z.string(),
-  name: z.string(),
+  id: z.string().nullable(),
+  name: z.string().nullable(),
 });
 
 const SubscriptionSchema = z.object({
   product: ProductSchema,
 });
-
-const FollowerSchema = z.object({
-  avatar_url: z.string().url(),
+export const FollowerSchema = z.object({
+  avatar_url: z.string().url().nullable(),
   id: z.number(),
-  kind: z.string(),
-  permalink_url: z.string().url(),
-  uri: z.string().url(),
-  username: z.string(),
-  permalink: z.string(),
-  created_at: z.string(),
-  last_modified: z.string(),
+  kind: z.string().nullable(),
+  permalink_url: z.string().url().nullable(),
+  uri: z.string().url().nullable(),
+  username: z.string().nullable(),
+  permalink: z.string().nullable(),
+  created_at: z.string().nullable(),
+  last_modified: z.string().nullable(),
   first_name: z.string().nullable(),
   last_name: z.string().nullable(),
-  full_name: z.string(),
+  full_name: z.string().nullable(),
   city: z.string().nullable(),
   description: z.string().nullable(),
   country: z.string().nullable(),
-  track_count: z.number(),
-  public_favorites_count: z.number(),
-  reposts_count: z.number(),
-  followers_count: z.number(),
-  followings_count: z.number(),
-  plan: z.string(),
+  track_count: z.number().nullable(),
+  public_favorites_count: z.number().nullable(),
+  reposts_count: z.number().nullable(),
+  followers_count: z.number().nullable(),
+  followings_count: z.number().nullable(),
+  plan: z.string().nullable(),
   myspace_name: z.string().nullable(),
   discogs_name: z.string().nullable(),
   website_title: z.string().nullable(),
   website: z.string().nullable(),
-  comments_count: z.number(),
-  online: z.boolean(),
-  likes_count: z.number(),
-  playlist_count: z.number(),
+  comments_count: z.number().nullable(),
+  online: z.boolean().nullable(),
+  likes_count: z.number().nullable(),
+  playlist_count: z.number().optional().nullable(), // Make this optional
   subscriptions: z.array(SubscriptionSchema),
 });
+
+export type FollowResponseData = z.infer<typeof FollowerSchema>;
 
 export const FollowersResponseSchema = z.object({
   collection: z.array(FollowerSchema),
   next_href: z.string().url().nullable(),
 });
 
+const ScrapUrlDataSchema = z.object({
+  id: z.number(),
+  followers_count: z.number(),
+  followings_count: z.number(),
+});
+
+const LogDataSchema = z.object({
+  id: z.string(),
+  activityType: z.enum(['Follow', 'Like', 'Comment']), // Adjust if needed
+  inputCount: z.number(),
+  accountId: z.string(),
+  completedCount: z.number(),
+  isSuccess: z.union([z.boolean(), z.enum(['Success', 'UnSuccess']).nullable()]),
+  isStatus: z.enum(['Y', 'N']),
+  startTime: z.string().datetime(),
+  endTime: z.string().datetime(),
+});
+
+export const StartActivitySchema = z.object({
+  scrapUrlData: ScrapUrlDataSchema.nullable(),
+  currentLogData: LogDataSchema.nullable(),
+  lastLogData: LogDataSchema.nullable(),
+  completedCountSum: z.number(),
+});
+export const ScrapUserErrorSchema = z.object({
+  error: z.string(),
+});
+
+export const VerifyTokenResponceSchema = z.object({
+  success: z.boolean(),
+  error: z.string().optional(),
+});
+
 export type FollowersResponseData = z.infer<typeof FollowersResponseSchema>;
+
+export type FollowUserResponseData = z.infer<typeof FollowerSchema>;
+
+export type VerifyTokenResponceData = z.infer<typeof VerifyTokenResponceSchema>;
