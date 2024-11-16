@@ -15,21 +15,13 @@ export async function POST(request: Request): Promise<NextResponse | null> {
     if (!accountId) {
       return null;
     }
-
-    // Ensure `body` has only the allowed fields for Prisma update
-    const updateData = {
-      completed_count: body.completed_count,
-      end_time: new Date(body.end_time), // Ensure this is a valid Date object
-      isStatus: body.isStatus,
-      isSuccess: body.isSuccess,
-      nextHref: body.nextHref,
-    };
+    body.endTime = new Date();
 
     const updatedData = await prisma.logActivity.update({
       where: {
         id: body.id,
       },
-      data: updateData, // Use validated and type-safe data
+      data: body,
     });
 
     return NextResponse.json(updatedData);

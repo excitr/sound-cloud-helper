@@ -24,8 +24,6 @@ export const followUserData = async (id: string): Promise<APIResponse> => {
     const followUserId = String(id);
     const url = `${SOUNDCLOUD_ME_URL}/followings/${followUserId}`;
 
-    logger.info(`Attempting to follow user with ID: ${followUserId}`);
-
     const response = await fetch(url, {
       method: 'PUT',
       headers: {

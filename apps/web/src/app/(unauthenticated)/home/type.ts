@@ -20,8 +20,11 @@ export type OptionsSchema = z.infer<typeof Options>;
 
 export const EndActivity = z.object({
   id: z.string(),
-  completed_count: z.number(),
-  end_time: z.date(),
+  completedCount: z.number(),
+  lastFollowUserId: z.string(),
+  followUserId: z.string(),
+  endTime: z.date(),
+  cursor: z.string(),
   isStatus: z.string(),
   isSuccess: z.string(),
   nextHref: z.string(),
@@ -34,13 +37,12 @@ export const LogActivitySchema = z.object({
   activityType: z.string(),
   inputCount: z.number(),
   accountId: z.string(),
-  followUserId: z.number(),
-  completedCount: z.number(),
+  followUserId: z.string().nullable(),
+  lastFollowUserId: z.string().nullable(),
+  completedCount: z.number().nullable(),
   isSuccess: z.string(),
   isStatus: z.string(),
-  nextHref: z.string(),
-  startTime: z.string(),
-  endTime: z.string(),
+  nextHref: z.string().nullable(),
 });
 
 const ProductSchema = z.object({
@@ -102,6 +104,8 @@ const LogDataSchema = z.object({
   activityType: z.enum(['Follow', 'Like', 'Comment']), // Adjust if needed
   inputCount: z.number(),
   accountId: z.string(),
+  lastFollowUserId: z.string().nullable(),
+  cursor: z.string().nullable(),
   completedCount: z.number(),
   isSuccess: z.union([z.boolean(), z.enum(['Success', 'UnSuccess']).nullable()]),
   isStatus: z.enum(['Y', 'N']),

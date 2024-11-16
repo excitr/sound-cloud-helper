@@ -31,7 +31,7 @@ export async function POST(request: Request): Promise<NextResponse | null> {
     const todayLogActivities = await prisma.logActivity.findMany({
       where: {
         activityType: 'Follow',
-        id: accountId,
+        accountId,
         startTime: {
           gte: startOfDay(today),
           lte: endOfDay(today),
@@ -54,7 +54,7 @@ export async function POST(request: Request): Promise<NextResponse | null> {
       activityType: 'Follow',
       inputCount: Number(body.follow_count),
       isStatus: 'Y',
-      followUserId: 0,
+      followUserId: '',
       accountId,
     };
     const currentLogData: LogActivity = await prisma.logActivity.create({

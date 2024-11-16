@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { toast } from 'react-hot-toast';
 import { logger } from '@repo/logger';
 import { rem } from '@/theme';
-import { fetchFollowerData } from '@/app/api/auth/fetch-followers/actions';
+import { type APIFollowerResponse, fetchFollowerData } from '@/app/api/auth/fetch-followers/actions';
 import { type APIResponse, followUserData } from '@/app/api/auth/follow/actions';
 import { initiallyOptions, useHomePageContext } from '../context';
 import { LogActivitySchema, ScrapUserErrorSchema, StartActivitySchema, VerifyTokenResponceSchema } from '../type';
@@ -30,7 +30,7 @@ export const verifySoundCouldToken = async (): Promise<VerifyTokenResponceData> 
 };
 
 export default function ActivitySection(): React.JSX.Element {
-  const { activity, setActivity, options, setOptions } = useHomePageContext();
+  const { activity, setActivity, options, setOptions, fetchProfileData } = useHomePageContext();
 
   const handleActivity = async (): Promise<void> => {
     if (options.scrap_url && options.follow_count > 0) {
@@ -46,32 +46,75 @@ export default function ActivitySection(): React.JSX.Element {
     }
   };
 
-  const fetchFolloersList = async (
+  const fetchFollowersList = async (
     scrapUrlId: string,
     followCount: number,
-    nextHref: string,
-  ): Promise<{ successFollowCount: number; nextHref: string | null }> => {
+    lastFollowUserId: number | null | undefined,
+    lastCursor: string | null | undefined,
+    firstId: string | null | undefined,
+  ): Promise<{
+    successFollowCount: number;
+    nextHref: string | null;
+    success: boolean;
+    currectCursor: string;
+    currentFollowedId: string | null;
+  }> => {
     try {
-      const followers = await fetchFollowerData(nextHref, scrapUrlId, String(followCount));
+      const followerList: APIFollowerResponse = await fetchFollowerData(
+        scrapUrlId,
+        String(followCount),
+        String(lastCursor),
+      );
 
+      if (!followerList.success) {
+        return {
+          successFollowCount: 0,
+          nextHref: null,
+          success: false,
+          currectCursor: '',
+          currentFollowedId: '',
+        };
+      }
+      const followers = followerList.data;
       const successFollowIds: number[] = [];
-
+      let updatedFirstId = firstId;
       if (followers && Boolean(followers.collection.length)) {
         for (const follower of followers.collection) {
+          if (!updatedFirstId) {
+            if (follower.id) {
+              updatedFirstId = String(follower.id);
+            }
+          }
+
+          if (lastFollowUserId === follower.id && followCount !== Number(successFollowIds.length)) {
+            const remainCount = followCount - successFollowIds.length;
+
+            return await fetchFollowersList(scrapUrlId, remainCount, lastFollowUserId, lastCursor, updatedFirstId);
+          }
           const followResponse: APIResponse = await followUserData(String(follower.id));
+
           if (followResponse.success) {
             if (followResponse.data) {
               successFollowIds.push(followResponse.data.id);
             }
           }
+          if (!followResponse.success) {
+            break;
+          }
         }
-        return { successFollowCount: Number(successFollowIds.length), nextHref: followers.next_href };
+        return {
+          successFollowCount: Number(successFollowIds.length),
+          nextHref: followers.next_href,
+          currectCursor: followerList.currectCursor,
+          success: true,
+          currentFollowedId: updatedFirstId ?? null,
+        };
       }
 
-      return { successFollowCount: 0, nextHref: null };
+      return { successFollowCount: 0, nextHref: null, success: false, currectCursor: '', currentFollowedId: '' };
     } catch (error) {
       logger.error('Error fetching followers:', error);
-      return { successFollowCount: 0, nextHref: null };
+      return { successFollowCount: 0, nextHref: null, success: false, currectCursor: '', currentFollowedId: '' };
     }
   };
 
@@ -79,30 +122,35 @@ export default function ActivitySection(): React.JSX.Element {
     scrapUrlId: string,
     targetFollowCount: number,
     currentCount: number,
-    nextHref: string | null = null,
-  ): Promise<number> => {
-    const { successFollowCount, nextHref: newNextHref } = await fetchFolloersList(
+    lastFollowUserId: number | null | undefined,
+    cursor: string | null | undefined,
+  ): Promise<{ totalCount: number; currectCursor: string; currentFollowedId: string }> => {
+    const firstId = '';
+    const { successFollowCount, success, currectCursor, currentFollowedId } = await fetchFollowersList(
       String(scrapUrlId),
       Number(targetFollowCount) - Number(currentCount),
-      nextHref ? nextHref : '',
+      lastFollowUserId,
+      cursor,
+      firstId,
     );
 
     const totalCount = Number(currentCount) + Number(successFollowCount);
 
     if (Number(totalCount) >= Number(targetFollowCount)) {
-      return totalCount;
+      return { totalCount, currectCursor, currentFollowedId };
     }
 
-    if (newNextHref) {
+    if (currectCursor && success && Number(totalCount) !== Number(targetFollowCount)) {
       return recursiveFetchFollowersData(
         String(scrapUrlId),
         Number(targetFollowCount),
         Number(totalCount),
-        newNextHref,
+        lastFollowUserId,
+        currectCursor,
       );
     }
 
-    return Number(totalCount);
+    return { totalCount, currectCursor, currentFollowedId };
   };
   const runActivity = async (): Promise<void> => {
     try {
@@ -130,20 +178,23 @@ export default function ActivitySection(): React.JSX.Element {
         return;
       }
 
-      const totalSuccessFollowCount = await recursiveFetchFollowersData(
+      const { totalCount, currectCursor, currentFollowedId } = await recursiveFetchFollowersData(
         String(result.scrapUrlData?.id),
         options.follow_count,
         0,
+        Number(result.lastLogData?.lastFollowUserId) || null,
+        result.lastLogData?.cursor,
       );
 
       const endActivityData = {
-        completedCount: totalSuccessFollowCount,
-        endTime: new Date(),
+        completedCount: Number(totalCount),
         isStatus: 'N',
-        isSuccess: Number(totalSuccessFollowCount) === Number(options.follow_count) ? 'Success' : 'UnSuccess',
+        isSuccess: Number(totalCount) === Number(options.follow_count) ? 'Success' : 'UnSuccess',
         nextHref: '',
-        followUserId: result.scrapUrlData?.id,
+        followUserId: String(result.scrapUrlData?.id),
+        lastFollowUserId: String(currentFollowedId),
         id: result.currentLogData?.id,
+        cursor: String(currectCursor),
       };
       const endActivityResponse = await fetch('/api/auth/end-activity', {
         method: 'POST',
@@ -154,7 +205,8 @@ export default function ActivitySection(): React.JSX.Element {
       const endActivityResponce = LogActivitySchema.parse(await endActivityResponse.json());
 
       if (endActivityResponce.id) {
-        toast.success(`Followed ${String(totalSuccessFollowCount)} users`);
+        await fetchProfileData();
+        toast.success(`Followed ${String(totalCount)} users`);
       }
 
       setActivity(false);
