@@ -5,7 +5,7 @@ import { type LogActivity, prisma, type Prisma } from '@repo/database';
 import { logger } from '@repo/logger';
 import { startOfDay, endOfDay } from 'date-fns';
 import type { OptionsSchema } from '@/app/(unauthenticated)/home/type';
-import { MAX_FOLLOW } from '@/app/modules/constant';
+import { DAILY_MAX_FOLLOW_LIMIT } from '@/app/modules/constant';
 import { getAccountIdFromCookie, getSoudCloudeTokenFromCookie } from '@/app/lib/common-functions';
 import { fetchScrapUserData } from './action';
 
@@ -17,14 +17,12 @@ export async function POST(request: Request): Promise<NextResponse | null> {
 
     if (!accessToken) {
       return null;
-      //return logAndRespondError('Access token is missing or expired.', HTTP_STATUS.UNAUTHORIZED);
     }
 
     const accountId = await getAccountIdFromCookie();
 
     if (!accountId) {
       return null;
-      //return logAndRespondError('Account id is missing', HTTP_STATUS.UNAUTHORIZED);
     }
 
     const today = new Date();
@@ -46,7 +44,7 @@ export async function POST(request: Request): Promise<NextResponse | null> {
 
     const lastLogData = todayLogActivities.length > 0 ? todayLogActivities[0] : null;
 
-    if (completedCountSum >= MAX_FOLLOW) {
+    if (completedCountSum >= DAILY_MAX_FOLLOW_LIMIT) {
       return NextResponse.json({ scrapUrlData: null, currentLogData: null, lastLogData, completedCountSum });
     }
 

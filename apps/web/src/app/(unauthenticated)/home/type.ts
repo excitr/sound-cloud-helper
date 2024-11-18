@@ -76,6 +76,12 @@ export const LogActivitySchema = z.object({
   nextHref: z.string().nullable(),
 });
 
+export const EndActivityResponse = z.object({
+  id: z.string().nullable(),
+  success: z.boolean(),
+  error: z.string().nullable(),
+});
+
 export const TimeData = z.object({
   success: z.boolean(),
   activityTime: z.string(),

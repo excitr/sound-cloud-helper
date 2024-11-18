@@ -7,8 +7,9 @@ import { logger } from '@repo/logger';
 import { rem } from '@/theme';
 import { type APIFollowerResponse, fetchFollowerData } from '@/app/api/auth/fetch-followers/actions';
 import { type APIResponse, followUserData } from '@/app/api/auth/follow/actions';
+import { SOUNDCLOUD_FOLLOW_LIMTI } from '@/app/modules/constant';
 import { initiallyOptions, useHomePageContext } from '../context';
-import { LogActivitySchema, ScrapUserErrorSchema, StartActivitySchema, VerifyTokenResponceSchema } from '../type';
+import { EndActivityResponse, ScrapUserErrorSchema, StartActivitySchema, VerifyTokenResponceSchema } from '../type';
 import { type VerifyTokenResponceData } from '../type';
 
 export const verifySoundCouldToken = async (): Promise<VerifyTokenResponceData> => {
@@ -35,9 +36,10 @@ export default function ActivitySection(): React.JSX.Element {
 
   const handleActivity = async (): Promise<void> => {
     await fetchProfileData();
+
     const followLimit = Number(options.follow_count) + Number(profileData.followings_count);
 
-    if (followLimit >= 1951) {
+    if (followLimit >= SOUNDCLOUD_FOLLOW_LIMTI) {
       toast.error('Your Following limit is exceed');
       return;
     }
@@ -211,9 +213,9 @@ export default function ActivitySection(): React.JSX.Element {
         body: JSON.stringify(endActivityData),
       });
 
-      const endActivityResponce = LogActivitySchema.parse(await endActivityResponse.json());
+      const { success } = EndActivityResponse.parse(await endActivityResponse.json());
 
-      if (endActivityResponce.id) {
+      if (success) {
         await fetchProfileData();
         toast.success(`Followed ${String(totalCount)} users`);
       }
