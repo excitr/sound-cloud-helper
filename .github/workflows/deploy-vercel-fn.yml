@@ -70,7 +70,9 @@ jobs:
       - uses: pnpm/action-setup@v4
 
       - name: Install dependencies
-        run: pnpm install
+        run: |
+          pnpm install
+          pnpm --filter=database generate
 
       - name: Run Migrations
         id: migrations
@@ -80,7 +82,6 @@ jobs:
 
           echo DATABASE_URL=${{ steps.create-branch.outputs.db_url_with_pooler || env.DATABASE_URL }} >> packages/database/.env
 
-          pnpm --filter=database generate
           pnpm --filter=database db:migrate:deploy
 
       - name: Install Vercel CLI
