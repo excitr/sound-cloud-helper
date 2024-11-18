@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { logger } from '@repo/logger';
-import { z } from 'zod';
 import { Box } from '@mui/material';
 import { fetchMeData } from '@/app/api/auth/home/actions';
 import ActivitySection, { verifySoundCouldToken } from './components/activity-section';
@@ -12,19 +11,26 @@ import OptionsSection from './components/options-section';
 import PricingSection from './components/pricing-section';
 import ProfileHeader from './components/profile-header';
 import HomePageContext from './context';
-import type { OptionsSchema, VerifyTokenResponceData } from './type';
-
-const MeDataSchema = z.object({
-  id: z.number(),
-  username: z.string(),
-  avatar_url: z.string(),
-  followers_count: z.number(),
-  followings_count: z.number(),
-});
-type MeData = z.infer<typeof MeDataSchema>;
+import {
+  MeData,
+  type MeDataSchema,
+  type OptionsSchema,
+  type VerifyTokenResponceData,
+  type LogActivitySchemaData,
+  TimeData,
+  initiallyLogData,
+} from './type';
 
 export default function HomePage(): React.JSX.Element {
-  const [profileData, setProfileData] = useState<MeData | null>(null);
+  const [logData, setLogData] = useState<[LogActivitySchemaData]>([initiallyLogData]);
+  const [activityTime, setActivityTime] = useState<string>('');
+  const [profileData, setProfileData] = useState<MeDataSchema>({
+    id: 0,
+    username: '',
+    avatar_url: '',
+    followers_count: 0,
+    followings_count: 0,
+  });
   const [activity, setActivity] = useState<boolean>(false);
   const [options, setOptions] = useState<OptionsSchema>({
     scrap_url: '',
@@ -48,7 +54,25 @@ export default function HomePage(): React.JSX.Element {
       if (tokenData.success) {
         const data = await fetchMeData();
 
-        setProfileData(MeDataSchema.parse(data));
+        setProfileData(MeData.parse(data));
+      }
+    } catch (error) {
+      logger.error('Failed to fetch profile data:', error);
+    }
+  };
+
+  const fetchActivityTimeData = async (): Promise<void> => {
+    try {
+      const response = await fetch('/api/auth/fetch-activity-time', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      const result = TimeData.parse(await response.json());
+
+      if (result.success) {
+        setActivityTime(result.activityTime);
+        setLogData(result.data);
       }
     } catch (error) {
       logger.error('Failed to fetch profile data:', error);
@@ -57,6 +81,7 @@ export default function HomePage(): React.JSX.Element {
 
   useEffect(() => {
     void fetchProfileData();
+    void fetchActivityTimeData();
   }, []);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>): void => {
@@ -85,12 +110,18 @@ export default function HomePage(): React.JSX.Element {
         setOptions,
         handleChange,
         fetchProfileData,
+        profileData,
+        setProfileData,
+        activityTime,
+        setActivityTime,
+        logData,
+        setLogData,
       }}
     >
       <Box mb={14}>
         <Layout />
       </Box>
-      {profileData ? <ProfileHeader userInfo={profileData} /> : <div>Loading...</div>}
+      <ProfileHeader />
       <ActivitySection />
       <OptionsSection />
       <LogSection />

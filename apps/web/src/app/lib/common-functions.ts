@@ -32,7 +32,7 @@ export const getAccountIdFromCookie = async (): Promise<string | null> => {
   const decodedToken = decodedSoundCloudToken(accountId);
 
   if (decodedToken && typeof decodedToken === 'object' && 'id' in decodedToken) {
-    return Promise.resolve(decodedToken.id as string);
+    return Promise.resolve(String(decodedToken.id));
   }
 
   return Promise.resolve(null);

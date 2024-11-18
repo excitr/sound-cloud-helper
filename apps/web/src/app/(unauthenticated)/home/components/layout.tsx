@@ -21,7 +21,7 @@ function Layout(): React.JSX.Element {
     // Sign out logic here
   };
 
-  const userEmail = 'dhz2@ighelper.com'; // example email
+  const userEmail = 'dhz2@ighelper.com'; // TODO selected account display in top header dropdown
 
   return (
     <AppBar position="fixed" sx={{ backgroundColor: '#F4F4F4', color: '#444', py: 1 }}>

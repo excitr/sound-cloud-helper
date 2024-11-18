@@ -30,9 +30,18 @@ export const verifySoundCouldToken = async (): Promise<VerifyTokenResponceData> 
 };
 
 export default function ActivitySection(): React.JSX.Element {
-  const { activity, setActivity, options, setOptions, fetchProfileData } = useHomePageContext();
+  const { activity, setActivity, options, setOptions, fetchProfileData, profileData, activityTime } =
+    useHomePageContext();
 
   const handleActivity = async (): Promise<void> => {
+    await fetchProfileData();
+    const followLimit = Number(options.follow_count) + Number(profileData.followings_count);
+
+    if (followLimit >= 1951) {
+      toast.error('Your Following limit is exceed');
+      return;
+    }
+
     if (options.scrap_url && options.follow_count > 0) {
       setActivity(true);
 
@@ -124,7 +133,7 @@ export default function ActivitySection(): React.JSX.Element {
     currentCount: number,
     lastFollowUserId: number | null | undefined,
     cursor: string | null | undefined,
-  ): Promise<{ totalCount: number; currectCursor: string; currentFollowedId: string }> => {
+  ): Promise<{ totalCount: number; currectCursor: string; currentFollowedId: string | null }> => {
     const firstId = '';
     const { successFollowCount, success, currectCursor, currentFollowedId } = await fetchFollowersList(
       String(scrapUrlId),
@@ -295,7 +304,7 @@ export default function ActivitySection(): React.JSX.Element {
             Time
           </Typography>
           <Typography fontWeight={500} color="#777" mt={1} fontSize={rem(25.6)} variant="body2">
-            142 day(s) 13h 33 m
+            {activityTime}
           </Typography>
         </Box>
         <Box

@@ -2,20 +2,11 @@
 
 import { Avatar, Typography, Box } from '@mui/material';
 import { rem } from '@/theme';
+import { useHomePageContext } from '../context';
 
-interface MeData {
-  id: number;
-  username: string;
-  followings_count: number;
-  followers_count: number;
-  avatar_url: string;
-}
+export default function ProfileHeader(): React.JSX.Element {
+  const { profileData } = useHomePageContext();
 
-interface ProfileHeaderProps {
-  userInfo?: MeData;
-}
-
-export default function ProfileHeader({ userInfo }: ProfileHeaderProps): React.JSX.Element {
   return (
     <Box
       width="90%"
@@ -37,7 +28,7 @@ export default function ProfileHeader({ userInfo }: ProfileHeaderProps): React.J
       }}
     >
       <Avatar
-        src={userInfo?.avatar_url ?? ''}
+        src={profileData.avatar_url}
         sx={{
           width: { xs: '6rem', sm: '9rem', md: '13.6rem' },
           height: { xs: '6rem', sm: '9rem', md: '13.6rem' },
@@ -48,13 +39,13 @@ export default function ProfileHeader({ userInfo }: ProfileHeaderProps): React.J
       />
       <Box>
         <Typography fontWeight={700} pb={6} fontSize={rem(28.8)} variant="h5">
-          {userInfo?.username ?? ''}
+          {profileData.username}
         </Typography>
         <Typography fontSize={rem(20.8)} fontWeight={400}>
-          Follower(s): {userInfo?.followers_count ?? 0}
+          Follower(s): {profileData.followers_count}
         </Typography>
         <Typography fontSize={rem(20.8)} fontWeight={400}>
-          Following(s):{userInfo?.followings_count ?? 0}
+          Following(s):{profileData.followings_count}
         </Typography>
       </Box>
     </Box>

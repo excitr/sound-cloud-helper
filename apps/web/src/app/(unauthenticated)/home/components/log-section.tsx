@@ -1,8 +1,10 @@
 'use client';
 import { Box, Typography } from '@mui/material';
 import { rem } from '@/theme';
+import { useHomePageContext } from '../context';
 
 export default function LogSection(): React.JSX.Element {
+  const { logData } = useHomePageContext();
   return (
     <Box
       mx={{ xs: 0, sm: 2, md: 20, lg: 46 }}
@@ -30,16 +32,17 @@ export default function LogSection(): React.JSX.Element {
           backgroundColor: '#F5F5F5',
         }}
       >
-        {logEntries.map((entry) => (
-          <Box key={entry.id} display="flex" flexDirection="row" gap={{ xs: 2, sm: 4, md: 6 }} pb={1}>
+        {logData.map((entry) => (
+          <Box key={entry.id} display="flex" flexDirection="row" gap={{ xs: 1, sm: 4, md: 6 }} pb={1}>
             <Typography fontWeight={400} color="#777" fontSize={rem(12)} variant="body2">
-              {entry.date}
+              {entry.startTime instanceof Date ? entry.startTime.toISOString() : (entry.startTime ?? '-')}
+            </Typography>
+
+            <Typography fontWeight={400} color="#777" fontSize={rem(12)} variant="body2">
+              Task {entry.activityType}
             </Typography>
             <Typography fontWeight={400} color="#777" fontSize={rem(12)} variant="body2">
-              {entry.time}
-            </Typography>
-            <Typography fontWeight={400} color="#777" fontSize={rem(12)} variant="body2">
-              {entry.message}
+              {entry.isSuccess ? entry.isSuccess : 'UnSccess'}
             </Typography>
           </Box>
         ))}
@@ -49,15 +52,3 @@ export default function LogSection(): React.JSX.Element {
 }
 
 // Mock log entries data
-const logEntries = [
-  { id: '1', date: '2024-10-05', time: '05:41:14', message: 'Task follow created' },
-  { id: '2', date: '2024-10-05', time: '05:41:14', message: 'Task follow paused' },
-  {
-    id: '3',
-    date: '2024-10-05',
-    time: '05:41:14',
-    message: 'Task follow successfully scheduled. It starts at: 2024-10-27 11:21:37',
-  },
-  { id: '4', date: '2024-10-05', time: '05:41:14', message: 'Task follow resumed' },
-  { id: '5', date: '2024-10-05', time: '05:41:14', message: 'Task follow created' },
-];

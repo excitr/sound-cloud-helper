@@ -1,5 +1,19 @@
 import { z } from 'zod';
 
+export const ActivityTime = z.string();
+export type ActivityTimeSchema = z.infer<typeof ActivityTime>;
+
+export const MeData = z.object({
+  id: z.number(),
+  username: z.string(),
+  avatar_url: z.string(),
+  followers_count: z.number(),
+  followings_count: z.number(),
+});
+export type MeDataSchema = z.infer<typeof MeData>;
+
+export type TimeDataSchema = z.infer<typeof TimeData>;
+
 export const Options = z.object({
   scrap_url: z.string(),
   follow: z.string(),
@@ -32,17 +46,40 @@ export const EndActivity = z.object({
 
 export type EndActivitySchema = z.infer<typeof EndActivity>;
 
+export const initiallyLogData = {
+  id: '',
+  activityType: '',
+  inputCount: 0,
+  accountId: '',
+  followUserId: '',
+  lastFollowUserId: '',
+  completedCount: 0,
+  startTime: null,
+  endTime: null,
+  isSuccess: 'UnSuccess',
+  isStatus: 'N',
+  nextHref: '',
+};
+
 export const LogActivitySchema = z.object({
   id: z.string(),
   activityType: z.string(),
   inputCount: z.number(),
-  accountId: z.string(),
+  accountId: z.string().nullable(),
   followUserId: z.string().nullable(),
   lastFollowUserId: z.string().nullable(),
   completedCount: z.number().nullable(),
-  isSuccess: z.string(),
-  isStatus: z.string(),
+  startTime: z.union([z.date(), z.string()]).nullable(),
+  endTime: z.union([z.date(), z.string()]).nullable(),
+  isSuccess: z.string().nullable(),
+  isStatus: z.string().nullable(),
   nextHref: z.string().nullable(),
+});
+
+export const TimeData = z.object({
+  success: z.boolean(),
+  activityTime: z.string(),
+  data: z.array(LogActivitySchema),
 });
 
 const ProductSchema = z.object({
@@ -86,8 +123,6 @@ export const FollowerSchema = z.object({
   subscriptions: z.array(SubscriptionSchema),
 });
 
-export type FollowResponseData = z.infer<typeof FollowerSchema>;
-
 export const FollowersResponseSchema = z.object({
   collection: z.array(FollowerSchema),
   next_href: z.string().url().nullable(),
@@ -128,8 +163,16 @@ export const VerifyTokenResponceSchema = z.object({
   error: z.string().optional(),
 });
 
+export const FetchActivityTimeSchema = z.object({
+  userId: z.string(),
+});
+
 export type FollowersResponseData = z.infer<typeof FollowersResponseSchema>;
 
 export type FollowUserResponseData = z.infer<typeof FollowerSchema>;
 
 export type VerifyTokenResponceData = z.infer<typeof VerifyTokenResponceSchema>;
+
+export type LogActivitySchemaData = z.infer<typeof LogActivitySchema>;
+
+export type FollowResponseData = z.infer<typeof FollowerSchema>;
