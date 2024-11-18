@@ -10,7 +10,10 @@ import {
   GRANT_TYPE,
   SOUNDCLOUD_ACCOUNT_ID,
   SOUNDCLOUD_ME_URL,
-   SOUNDCLOUD_TOKEN_KEY, TOKEN_KEY, TOKEN_URL } from '@/app/modules/constant.ts';
+  SOUNDCLOUD_TOKEN_KEY,
+  TOKEN_KEY,
+  TOKEN_URL,
+} from '@/app/modules/constant.ts';
 import { encodedSoundCloudAccountId, encodedSoundCloudToken } from '../../sign-in/login-helper';
 
 interface CustomJwtPayload extends JwtPayload {
