@@ -17,12 +17,12 @@ const TokenResponseSchema = z.object({
   scope: z.string(),
 });
 
-export async function POST(): Promise<Response | null> {
+export async function POST(): Promise<Response> {
   try {
     const accountId = await getAccountIdFromCookie();
 
     if (!accountId) {
-      return null;
+      return NextResponse.json({ success: false });
     }
     const currentTimeMinus10Minutes = new Date(Date.now() - 10 * 60 * 1000); // Get time 10 minutes ago in seconds
 
