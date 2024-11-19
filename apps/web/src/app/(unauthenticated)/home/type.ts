@@ -142,7 +142,7 @@ const ScrapUrlDataSchema = z.object({
 
 const LogDataSchema = z.object({
   id: z.string(),
-  activityType: z.enum(['Follow', 'Like', 'Comment']), // Adjust if needed
+  activityType: z.enum(['Follow', 'UnFollow']),
   inputCount: z.number(),
   accountId: z.string(),
   lastFollowUserId: z.string().nullable(),
@@ -151,7 +151,7 @@ const LogDataSchema = z.object({
   isSuccess: z.union([z.boolean(), z.enum(['Success', 'UnSuccess']).nullable()]),
   isStatus: z.enum(['Y', 'N']),
   startTime: z.string().datetime(),
-  endTime: z.string().datetime(),
+  endTime: z.string().datetime().nullable(),
 });
 
 export const StartActivitySchema = z.object({
@@ -159,6 +159,8 @@ export const StartActivitySchema = z.object({
   currentLogData: LogDataSchema.nullable(),
   lastLogData: LogDataSchema.nullable(),
   completedCountSum: z.number(),
+  success: z.boolean(),
+  error: z.string().nullable(),
 });
 export const ScrapUserErrorSchema = z.object({
   error: z.string(),
@@ -182,3 +184,5 @@ export type VerifyTokenResponceData = z.infer<typeof VerifyTokenResponceSchema>;
 export type LogActivitySchemaData = z.infer<typeof LogActivitySchema>;
 
 export type FollowResponseData = z.infer<typeof FollowerSchema>;
+
+export type StartActivityResponseData = z.infer<typeof StartActivitySchema>;
