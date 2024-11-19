@@ -39,9 +39,9 @@ export const EndActivity = z.object({
   followUserId: z.string(),
   endTime: z.date(),
   cursor: z.string(),
-  isStatus: z.string(),
-  isSuccess: z.string(),
-  nextHref: z.string(),
+  isStatus: z.enum(['Y', 'N']),
+  isSuccess: z.enum(['Success', 'UnSuccess']),
+  nextHref: z.string().nullable(),
 });
 
 export type EndActivitySchema = z.infer<typeof EndActivity>;

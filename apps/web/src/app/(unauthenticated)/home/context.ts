@@ -22,8 +22,8 @@ export interface HomePageContextType {
   setProfileData: Dispatch<SetStateAction<MeDataSchema>>;
   activityTime: ActivityTimeSchema;
   setActivityTime: Dispatch<SetStateAction<ActivityTimeSchema>>;
-  logData: [LogActivitySchemaData];
-  setLogData: Dispatch<SetStateAction<[LogActivitySchemaData]>>;
+  logData: LogActivitySchemaData[];
+  setLogData: Dispatch<SetStateAction<LogActivitySchemaData[]>>;
 }
 
 export const initiallyOptions = {

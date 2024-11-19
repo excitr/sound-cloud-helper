@@ -22,7 +22,7 @@ import {
 } from './type';
 
 export default function HomePage(): React.JSX.Element {
-  const [logData, setLogData] = useState<[LogActivitySchemaData]>([initiallyLogData]);
+  const [logData, setLogData] = useState<LogActivitySchemaData[]>([initiallyLogData]);
   const [activityTime, setActivityTime] = useState<string>('');
   const [profileData, setProfileData] = useState<MeDataSchema>({
     id: 0,
