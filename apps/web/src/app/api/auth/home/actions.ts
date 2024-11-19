@@ -1,24 +1,14 @@
 'use server';
 
-import { z } from 'zod';
 import { SOUNDCLOUD_ME_URL } from '@/app/modules/constant.ts';
 import { getSoudCloudeTokenFromCookie } from '@/app/lib/common-functions';
+import { type HomeAPIResponseData, MeData } from '@/app/(unauthenticated)/home/type';
 
-const MeDataSchema = z.object({
-  id: z.number(),
-  username: z.string(),
-  avatar_url: z.string(),
-  followers_count: z.number(),
-  followings_count: z.number(),
-});
-
-type MeData = z.infer<typeof MeDataSchema>;
-
-export const fetchMeData = async (): Promise<MeData | null> => {
+export const fetchMeData = async (): Promise<HomeAPIResponseData> => {
   const accessToken = await getSoudCloudeTokenFromCookie();
 
   if (!accessToken) {
-    return null;
+    return { success: false };
   }
   const response = await fetch(SOUNDCLOUD_ME_URL, {
     method: 'GET',
@@ -32,5 +22,5 @@ export const fetchMeData = async (): Promise<MeData | null> => {
     throw new Error(`Error fetching data: ${response.statusText}`);
   }
 
-  return MeDataSchema.parse(await response.json());
+  return { success: true, data: MeData.parse(await response.json()) };
 };

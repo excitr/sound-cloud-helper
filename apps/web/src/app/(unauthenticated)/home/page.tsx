@@ -52,9 +52,10 @@ export default function HomePage(): React.JSX.Element {
       const tokenData: VerifyTokenResponceData | undefined = await verifySoundCouldToken();
 
       if (tokenData.success) {
-        const data = await fetchMeData();
-
-        setProfileData(MeData.parse(data));
+        const { data, success } = await fetchMeData();
+        if (success) {
+          setProfileData(MeData.parse(data));
+        }
       }
     } catch (error) {
       logger.error('Failed to fetch profile data:', error);

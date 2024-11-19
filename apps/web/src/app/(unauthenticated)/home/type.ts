@@ -162,6 +162,12 @@ export const StartActivitySchema = z.object({
   success: z.boolean(),
   error: z.string().nullable(),
 });
+
+export const HomeAPIResponseSchema = z.object({
+  data: MeData.nullable().optional(),
+  success: z.boolean(),
+  error: z.string().nullable().optional(),
+});
 export const ScrapUserErrorSchema = z.object({
   error: z.string(),
 });
@@ -186,3 +192,5 @@ export type LogActivitySchemaData = z.infer<typeof LogActivitySchema>;
 export type FollowResponseData = z.infer<typeof FollowerSchema>;
 
 export type StartActivityResponseData = z.infer<typeof StartActivitySchema>;
+
+export type HomeAPIResponseData = z.infer<typeof HomeAPIResponseSchema>;

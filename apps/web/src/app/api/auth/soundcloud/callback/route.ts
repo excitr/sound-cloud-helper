@@ -87,12 +87,12 @@ const fetchMeData = async (accessToken: string): Promise<MeData> => {
   return MeDataSchema.parse(await response.json());
 };
 
-export async function GET(request: Request): Promise<NextResponse | null> {
+export async function GET(request: Request): Promise<NextResponse> {
   const { searchParams } = new URL(request.url);
   const authorizationCode = searchParams.get('code');
 
   if (!authorizationCode) {
-    return null;
+    return NextResponse.json({ success: false });
   }
 
   const userId = await getUserIdFromCookie();
@@ -126,7 +126,6 @@ export async function GET(request: Request): Promise<NextResponse | null> {
 
     return NextResponse.redirect(new URL('/home', request.url));
   } catch (error) {
-    return null;
-    //return logAndRespondError(`Request failed: ${(error as Error).message}`, HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    return NextResponse.json({ success: false });
   }
 }
