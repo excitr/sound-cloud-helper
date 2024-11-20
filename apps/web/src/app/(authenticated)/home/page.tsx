@@ -14,23 +14,23 @@ import PricingSection from './components/pricing-section';
 import ProfileHeader from './components/profile-header';
 import HomePageContext from './context';
 import {
-  MeData,
-  type MeDataSchema,
   type OptionsSchema,
   type LogActivitySchemaData,
   initiallyLogData,
   type ActivityAPIResponse,
+  UserMetadata,
+  type UserMetadataSchema,
 } from './type';
 
 export default function HomePage(): React.JSX.Element {
   const [logData, setLogData] = useState<LogActivitySchemaData[]>([initiallyLogData]);
   const [activityTime, setActivityTime] = useState<string>('');
-  const [profileData, setProfileData] = useState<MeDataSchema>({
+  const [profileData, setProfileData] = useState<UserMetadataSchema>({
     id: 0,
-    username: '',
-    avatar_url: '',
-    followers_count: 0,
-    followings_count: 0,
+    userName: '',
+    avatarUrl: '',
+    followersCount: 0,
+    followingsCount: 0,
   });
   const [activity, setActivity] = useState<boolean>(false);
   const [options, setOptions] = useState<OptionsSchema>({
@@ -55,7 +55,7 @@ export default function HomePage(): React.JSX.Element {
       if (tokenData.success) {
         const { data, success } = await fetchMeData();
         if (success) {
-          setProfileData(MeData.parse(data));
+          setProfileData(UserMetadata.parse(data));
         }
       }
     } catch (error) {

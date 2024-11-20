@@ -28,7 +28,7 @@ export default function ProfileHeader(): React.JSX.Element {
       }}
     >
       <Avatar
-        src={profileData.avatar_url}
+        src={profileData.avatarUrl}
         sx={{
           width: { xs: '6rem', sm: '9rem', md: '13.6rem' },
           height: { xs: '6rem', sm: '9rem', md: '13.6rem' },
@@ -39,13 +39,13 @@ export default function ProfileHeader(): React.JSX.Element {
       />
       <Box>
         <Typography fontWeight={700} pb={6} fontSize={rem(28.8)} variant="h5">
-          {profileData.username}
+          {profileData.userName}
         </Typography>
         <Typography fontSize={rem(20.8)} fontWeight={400}>
-          Follower(s): {profileData.followers_count}
+          Follower(s): {profileData.followersCount}
         </Typography>
         <Typography fontSize={rem(20.8)} fontWeight={400}>
-          Following(s):{profileData.followings_count}
+          Following(s):{profileData.followingsCount}
         </Typography>
       </Box>
     </Box>

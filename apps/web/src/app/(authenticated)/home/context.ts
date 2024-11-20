@@ -5,7 +5,7 @@ import { useContext, createContext } from 'react';
 import type React from 'react';
 import {
   type OptionsSchema,
-  type MeDataSchema,
+  type UserMetadataSchema,
   type ActivityTimeSchema,
   type LogActivitySchemaData,
   initiallyLogData,
@@ -18,8 +18,8 @@ export interface HomePageContextType {
   options: OptionsSchema;
   setOptions: Dispatch<SetStateAction<OptionsSchema>>;
   fetchProfileData: () => Promise<void>;
-  profileData: MeDataSchema;
-  setProfileData: Dispatch<SetStateAction<MeDataSchema>>;
+  profileData: UserMetadataSchema;
+  setProfileData: Dispatch<SetStateAction<UserMetadataSchema>>;
   activityTime: ActivityTimeSchema;
   setActivityTime: Dispatch<SetStateAction<ActivityTimeSchema>>;
   logData: LogActivitySchemaData[];
@@ -71,10 +71,10 @@ const HomePageContext = createContext<HomePageContextType>({
   },
   profileData: {
     id: 0,
-    username: '',
-    avatar_url: '',
-    followers_count: 0,
-    followings_count: 0,
+    userName: '',
+    avatarUrl: '',
+    followersCount: 0,
+    followingsCount: 0,
   },
   setProfileData: () => {
     // no-op function as placeholder

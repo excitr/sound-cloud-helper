@@ -556,6 +556,14 @@ model LogActivity {
   startTime        DateTime     @map("start_time")
   endTime          DateTime     @map("end_time")
 
+  @@index([accountId], name: "idx_account_id")
+  @@index([followUserId], name: "idx_follow_user_id")
+  @@index([lastFollowUserId], name: "idx_last_follow_user_id")
+  @@index([cursor], name: "idx_cursor")
+  @@index([isSuccess], name: "idx_is_success")
+  @@index([isStatus], name: "idx_is_status")
+  @@index([startTime], name: "idx_start_time")
+  @@index([endTime], name: "idx_end_time")
   @@map("log_activity")
 }
 

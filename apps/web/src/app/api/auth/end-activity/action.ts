@@ -12,7 +12,6 @@ export async function endActivity(body: EndActivitySchema): Promise<EndActivityA
     if (!accountId) {
       return { success: false };
     }
-    //  body.endTime = new Date();
 
     const updatedData = await prisma.logActivity.update({
       where: {

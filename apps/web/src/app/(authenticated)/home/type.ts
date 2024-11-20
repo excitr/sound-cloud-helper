@@ -10,6 +10,16 @@ export const MeData = z.object({
   followers_count: z.number(),
   followings_count: z.number(),
 });
+
+export const UserMetadata = z.object({
+  id: z.number(),
+  userName: z.string(),
+  avatarUrl: z.string(),
+  followersCount: z.number(),
+  followingsCount: z.number(),
+});
+
+export type UserMetadataSchema = z.infer<typeof UserMetadata>;
 export type MeDataSchema = z.infer<typeof MeData>;
 
 export type TimeDataSchema = z.infer<typeof TimeData>;
@@ -160,7 +170,7 @@ export const StartActivitySchema = z.object({
 });
 
 export const HomeAPIResponseSchema = z.object({
-  data: MeData.nullable().optional(),
+  data: UserMetadata.nullable().optional(),
   success: z.boolean(),
   error: z.string().nullable().optional(),
 });
