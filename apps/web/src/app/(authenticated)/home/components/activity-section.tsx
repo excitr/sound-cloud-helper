@@ -9,6 +9,7 @@ import { type APIFollowerResponse, fetchFollowerData } from '@/app/api/auth/fetc
 import { type APIResponse, followUserData } from '@/app/api/auth/follow/actions';
 import { DAILY_MAX_FOLLOW_LIMIT, SOUNDCLOUD_FOLLOW_LIMIT } from '@/app/modules/constant';
 import { type APITokenResponse, generateSoundCloudToken } from '@/app/api/auth/generate-soundcloud-token/actions';
+import { startActivity } from '@/app/api/start-activity/action';
 import { initialOptions, useHomePageContext } from '../context';
 import { EndActivityResponse, StartActivitySchema } from '../type';
 
@@ -150,17 +151,13 @@ export default function ActivitySection(): React.JSX.Element {
   };
   const runActivity = async (): Promise<void> => {
     try {
-      const response = await fetch('/api/start-activity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(options),
-      });
+      const response = await startActivity(options);
 
-      if (!response.ok) {
+      if (!response.success) {
         setActivity(false);
         return;
       }
-      const result = StartActivitySchema.parse(await response.json());
+      const result = StartActivitySchema.parse(response);
       if (Number(result.completedCountSum) === DAILY_MAX_FOLLOW_LIMIT) {
         toast.error(`You reached your today limit ${String(result.completedCountSum)}`);
         setActivity(false);
