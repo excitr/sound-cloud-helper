@@ -174,6 +174,27 @@ export const FetchActivityTimeSchema = z.object({
   userId: z.string(),
 });
 
+const LogActivityData = z.object({
+  id: z.string(),
+  activityType: z.string(),
+  inputCount: z.number(),
+  accountId: z.string().nullable(),
+  followUserId: z.string().nullable(),
+  lastFollowUserId: z.string().nullable(),
+  completedCount: z.number().nullable(),
+  startTime: z.union([z.date(), z.string()]).nullable(),
+  endTime: z.union([z.date(), z.string()]).nullable(),
+  isSuccess: z.string().nullable(),
+  isStatus: z.string().nullable(),
+});
+export const ActivityAPISchema = z.object({
+  success: z.boolean(),
+  id: z.number().optional(),
+  activityTime: z.string().optional(),
+  error: z.string().optional(),
+  data: z.array(LogActivityData).optional(),
+});
+
 export type FollowersResponseData = z.infer<typeof FollowersResponseSchema>;
 
 export type FollowUserResponseData = z.infer<typeof FollowerSchema>;
@@ -187,3 +208,5 @@ export type FollowResponseData = z.infer<typeof FollowerSchema>;
 export type StartActivityResponseData = z.infer<typeof StartActivitySchema>;
 
 export type HomeAPIResponseData = z.infer<typeof HomeAPIResponseSchema>;
+
+export type ActivityAPIResponse = z.infer<typeof ActivityAPISchema>;

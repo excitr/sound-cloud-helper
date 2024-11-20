@@ -3,15 +3,15 @@
 import { prisma } from '@repo/database';
 import { logger } from '@repo/logger';
 import { getAccountIdFromCookie } from '@/app/lib/common-functions';
-import { type LogActivitySchemaData } from '@/app/(authenticated)/home/type';
+import { type ActivityAPIResponse } from '@/app/(authenticated)/home/type';
 
-export interface APIResponse {
-  success: boolean;
-  id?: number;
-  activityTime?: string;
-  error?: string;
-  data?: LogActivitySchemaData[];
-}
+// export interface ActivityAPISchema {
+//   success: boolean;
+//   id?: number;
+//   activityTime?: string;
+//   error?: string;
+//   data?: LogActivitySchemaData[];
+// }
 
 interface Activity {
   accountId: string;
@@ -56,7 +56,7 @@ function calculateActivityTime(data: Activity[]): string {
   return result.trim();
 }
 
-export async function fetchUserActivity(): Promise<APIResponse> {
+export async function fetchUserActivity(): Promise<ActivityAPIResponse> {
   try {
     const accountId = await getAccountIdFromCookie();
 

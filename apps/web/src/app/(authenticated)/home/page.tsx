@@ -5,6 +5,7 @@ import { logger } from '@repo/logger';
 import { Box } from '@mui/material';
 import { fetchMeData } from '@/app/api/auth/home/actions';
 import { type APITokenResponse } from '@/app/api/auth/generate-soundcloud-token/actions';
+import { fetchUserActivity } from '@/app/api/auth/fetch-activity-time/actions';
 import ActivitySection, { verifySoundCouldToken } from './components/activity-section';
 import Layout from './components/layout';
 import LogSection from './components/log-section';
@@ -17,8 +18,8 @@ import {
   type MeDataSchema,
   type OptionsSchema,
   type LogActivitySchemaData,
-  TimeData,
   initiallyLogData,
+  type ActivityAPIResponse,
 } from './type';
 
 export default function HomePage(): React.JSX.Element {
@@ -64,16 +65,11 @@ export default function HomePage(): React.JSX.Element {
 
   const fetchActivityTimeData = async (): Promise<void> => {
     try {
-      const response = await fetch('/api/auth/fetch-activity-time', {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
+      const response: ActivityAPIResponse = await fetchUserActivity();
 
-      const result = TimeData.parse(await response.json());
-
-      if (result.success) {
-        setActivityTime(result.activityTime);
-        setLogData(result.data);
+      if (response.success && response.activityTime && response.data) {
+        setActivityTime(response.activityTime);
+        setLogData(response.data);
       }
     } catch (error) {
       logger.error('Failed to fetch profile data:', error);
