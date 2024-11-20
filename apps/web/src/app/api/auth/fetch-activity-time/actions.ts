@@ -5,14 +5,6 @@ import { logger } from '@repo/logger';
 import { getAccountIdFromCookie } from '@/app/lib/common-functions';
 import { type ActivityAPIResponse } from '@/app/(authenticated)/home/type';
 
-// export interface ActivityAPISchema {
-//   success: boolean;
-//   id?: number;
-//   activityTime?: string;
-//   error?: string;
-//   data?: LogActivitySchemaData[];
-// }
-
 interface Activity {
   accountId: string;
   startTime: Date;
@@ -74,17 +66,13 @@ export async function fetchUserActivity(): Promise<ActivityAPIResponse> {
       },
       take: 30,
     });
-    const formattedResultData = resultData.map((item) => ({
-      ...item,
-      startTime: item.startTime.toISOString(),
-      endTime: item.endTime.toISOString(),
-    }));
+
     const time = calculateActivityTime(resultData);
 
     return {
       success: true,
       activityTime: time,
-      data: formattedResultData,
+      data: resultData,
     };
   } catch (error) {
     logger.error(error, 'Error in fetch-activity:');
