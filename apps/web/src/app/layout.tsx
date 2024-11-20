@@ -11,9 +11,9 @@ export const metadata: Metadata = {
   title: 'Sound cloud helper',
   description: 'Increase your followers in sound cloud.',
   icons: {
-    icon: '/souldCloudlogo.ico', // path relative to the `public` folder
+    icon: '/souldCloudlogo.ico',
     shortcut: '/souldCloudlogo.ico',
-    apple: '/souldCloudlogo.svg', // for Apple touch icons
+    apple: '/souldCloudlogo.svg',
   },
 };
 

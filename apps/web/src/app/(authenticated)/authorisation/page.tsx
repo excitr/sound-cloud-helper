@@ -4,8 +4,6 @@ import { Button, Typography, Box } from '@mui/material';
 import Image from 'next/image';
 
 function SoundCloudAuth(): React.JSX.Element {
-  // Generate a random state value for added security
-
   const redirectToSoundCloud = useCallback(() => {
     window.location.href = '/api/auth/soundcloud/redirect';
   }, []);
@@ -13,7 +11,7 @@ function SoundCloudAuth(): React.JSX.Element {
   return (
     <Box
       sx={{
-        backgroundImage: 'url(/bg.avif)', // Your image is now referenced from the public folder
+        backgroundImage: 'url(/bg.avif)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         height: '100vh',
@@ -22,11 +20,10 @@ function SoundCloudAuth(): React.JSX.Element {
         alignItems: 'center',
       }}
     >
-      {/* Translucent card */}
       <Box
         sx={{
           backgroundColor: 'rgba(255, 255, 255, 0.1)',
-          backdropFilter: 'blur(10px)', // Adds the blur effect
+          backdropFilter: 'blur(10px)',
           borderRadius: '16px',
           padding: '24px',
           display: 'flex',
@@ -53,12 +50,12 @@ function SoundCloudAuth(): React.JSX.Element {
           }}
         >
           <Image
-            src="/souldCloudlogo.svg" // Ensure the image is inside the 'public' folder
+            src="/souldCloudlogo.svg"
             alt="SoundCloud"
-            width={24} // Set width and height
+            width={24}
             height={24}
             unoptimized
-            style={{ marginRight: '8px' }} // You can still apply styling
+            style={{ marginRight: '8px' }}
           />
           <Typography variant="body1" component="span" sx={{ mr: '5px' }}>
             Connect with

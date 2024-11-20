@@ -3,26 +3,22 @@
 import { NextResponse } from 'next/server';
 import { prisma, type Prisma } from '@repo/database';
 import { z } from 'zod';
-import { logger } from '@repo/logger';
 import { cookies } from 'next/headers';
 import { type JwtPayload, verify } from 'jsonwebtoken';
 import { env } from '@/env.mjs';
-import { GRANT_TYPE, SOUNDCLOUD_ME_URL, TOKEN_KEY, TOKEN_URL } from '@/app/modules/constant.ts';
+import {
+  GRANT_TYPE,
+  SOUNDCLOUD_ACCOUNT_ID,
+  SOUNDCLOUD_ME_URL,
+  SOUNDCLOUD_TOKEN_KEY,
+  TOKEN_KEY,
+  TOKEN_URL,
+} from '@/app/modules/constant.ts';
+import { encodedSoundCloudAccountId, encodedSoundCloudToken } from '../../sign-in/login-helper';
 
-const HTTP_STATUS = {
-  BAD_REQUEST: 400,
-  UNAUTHORIZED: 401,
-  INTERNAL_SERVER_ERROR: 500,
-  SUCCESS: 200,
-};
 interface CustomJwtPayload extends JwtPayload {
   id: number;
 }
-
-const logAndRespondError = (error: string, status: number): NextResponse<{ error: string }> => {
-  logger.error(error);
-  return NextResponse.json({ error }, { status });
-};
 
 const MeDataSchema = z.object({
   id: z.number(),
@@ -40,13 +36,13 @@ type MeData = z.infer<typeof MeDataSchema>;
 type TokenInfo = z.infer<typeof TokenInfoSchema>;
 
 const getUserIdFromCookie = async (): Promise<number | null> => {
-  const cookieStore = await cookies(); // Await the promise returned by cookies()
+  const cookieStore = await cookies();
   const userData = cookieStore.get(TOKEN_KEY);
 
   if (userData) {
     const decoded = verify(userData.value, env.ACCESS_TOKEN_SECRET) as CustomJwtPayload;
 
-    return decoded.id; // Directly return the user ID
+    return decoded.id;
   }
 
   return null;
@@ -96,7 +92,7 @@ export async function GET(request: Request): Promise<NextResponse> {
   const authorizationCode = searchParams.get('code');
 
   if (!authorizationCode) {
-    return logAndRespondError('Authorization code is missing', HTTP_STATUS.BAD_REQUEST);
+    return NextResponse.json({ success: false });
   }
 
   const userId = await getUserIdFromCookie();
@@ -105,6 +101,10 @@ export async function GET(request: Request): Promise<NextResponse> {
     const tokenInfo = await fetchTokenInfo(authorizationCode);
 
     const meData: MeData = await fetchMeData(tokenInfo.access_token);
+
+    const cookieStore = await cookies();
+
+    cookieStore.set(SOUNDCLOUD_TOKEN_KEY, encodedSoundCloudToken({ access_token: tokenInfo.access_token }));
 
     const inputData: Prisma.SoundCloudAccountCreateInput = {
       userId: Number(userId),
@@ -115,16 +115,17 @@ export async function GET(request: Request): Promise<NextResponse> {
       username: meData.username,
     };
 
-    await prisma.soundCloudAccount.upsert({
+    const insertedData = await prisma.soundCloudAccount.upsert({
       where: {
         userId_soundCloudAccountId: { userId: Number(userId), soundCloudAccountId: Number(meData.id) },
       },
       update: inputData,
       create: inputData,
     });
+    cookieStore.set(SOUNDCLOUD_ACCOUNT_ID, encodedSoundCloudAccountId({ id: String(insertedData.id) }));
 
     return NextResponse.redirect(new URL('/home', request.url));
   } catch (error) {
-    return logAndRespondError(`Request failed: ${(error as Error).message}`, HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    return NextResponse.json({ success: false });
   }
 }

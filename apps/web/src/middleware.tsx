@@ -1,7 +1,7 @@
 import { jwtVerify } from 'jose';
 import { NextResponse, type NextRequest } from 'next/server';
 import { logger } from '@repo/logger';
-import { TOKEN_KEY, REFRESH_TOKEN_KEY } from './app/modules/constant';
+import { TOKEN_KEY, REFRESH_TOKEN_KEY, SOUNDCLOUD_ACCOUNT_ID } from './app/modules/constant';
 import { env } from './env.mjs';
 
 export const DEFAULT_HOME_PATH = '/authorisation';
@@ -16,6 +16,7 @@ export const config = {
 export async function middleware(request: NextRequest): Promise<NextResponse> {
   const token = request.cookies.get(TOKEN_KEY)?.value;
   const refreshToken = request.cookies.get(REFRESH_TOKEN_KEY)?.value;
+  const soundCloudAccountId = request.cookies.get(SOUNDCLOUD_ACCOUNT_ID)?.value;
 
   // Refresh user's JWT if invalid (except if signing out)
   if (request.nextUrl.pathname !== '/api/auth/sign-out' && token) {
@@ -29,6 +30,10 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   }
 
   const { pathname } = request.nextUrl;
+
+  if (!soundCloudAccountId && pathname === '/home') {
+    return NextResponse.redirect(new URL('/authorisation', request.url));
+  }
 
   if (token) {
     if (isAuth(pathname)) {

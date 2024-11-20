@@ -98,7 +98,6 @@ function Page(): React.JSX.Element {
               if (err instanceof Error) {
                 logger.error('Error setting email:', err.message);
               } else {
-                // Handle unexpected error types
                 logger.error('Unexpected error:', err);
               }
             });
@@ -109,7 +108,6 @@ function Page(): React.JSX.Element {
               if (err instanceof Error) {
                 logger.error('Error setting password:', err.message);
               } else {
-                // Handle unexpected error types
                 logger.error('Unexpected error:', err);
               }
             });
