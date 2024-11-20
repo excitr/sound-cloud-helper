@@ -1,7 +1,7 @@
 'use server';
 
 import { logger } from '@repo/logger';
-import { getSoudCloudeTokenFromCookie } from '@/app/lib/common-functions';
+import { getSoundCloudTokenFromCookie } from '@/app/lib/common-functions';
 import { SOUNDCLOUD_USERS_FOLLOWERS_URL } from '@/app/modules/constant';
 import { type FollowersResponseData, FollowersResponseSchema } from '@/app/(authenticated)/home/type';
 
@@ -23,7 +23,7 @@ export const fetchFollowerData = async (
   lastCursor: string,
 ): Promise<APIFollowerResponse> => {
   try {
-    const accessToken = await getSoudCloudeTokenFromCookie();
+    const accessToken = await getSoundCloudTokenFromCookie();
 
     if (!accessToken) {
       return { success: false, error: 'Not found accesstoken', currentCursor: null };

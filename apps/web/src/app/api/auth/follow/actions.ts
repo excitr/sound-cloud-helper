@@ -3,7 +3,7 @@
 import { logger } from '@repo/logger';
 import { SOUNDCLOUD_ME_URL } from '@/app/modules/constant';
 import { FollowerSchema, type FollowResponseData } from '@/app/(authenticated)/home/type';
-import { getSoudCloudeTokenFromCookie } from '@/app/lib/common-functions';
+import { getSoundCloudTokenFromCookie } from '@/app/lib/common-functions';
 
 export interface APIResponse {
   success: boolean;
@@ -13,7 +13,7 @@ export interface APIResponse {
 
 export const followUserData = async (id: string): Promise<APIResponse> => {
   try {
-    const accessToken = await getSoudCloudeTokenFromCookie();
+    const accessToken = await getSoundCloudTokenFromCookie();
     if (!accessToken) {
       logger.error('No access token found.');
       return { success: false, error: 'No access token found' };

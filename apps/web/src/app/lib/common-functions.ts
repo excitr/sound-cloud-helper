@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 import { SOUNDCLOUD_ACCOUNT_ID, SOUNDCLOUD_TOKEN_KEY } from '../modules/constant';
 import { decodedSoundCloudToken } from '../api/auth/sign-in/login-helper';
 
-export const getSoudCloudeTokenFromCookie = async (): Promise<string | null> => {
+export const getSoundCloudTokenFromCookie = async (): Promise<string | null> => {
   const cookieStore = cookies();
   const cookie = (await cookieStore).get(SOUNDCLOUD_TOKEN_KEY);
   const accessToken = cookie?.value;

@@ -6,7 +6,7 @@ import { logger } from '@repo/logger';
 import { startOfDay, endOfDay } from 'date-fns';
 import type { OptionsSchema, StartActivityResponseData } from '@/app/(authenticated)/home/type';
 import { DAILY_MAX_FOLLOW_LIMIT } from '@/app/modules/constant';
-import { getAccountIdFromCookie, getSoudCloudeTokenFromCookie } from '@/app/lib/common-functions';
+import { getAccountIdFromCookie, getSoundCloudTokenFromCookie } from '@/app/lib/common-functions';
 import { fetchScrapUserData } from './action';
 
 export async function POST(request: Request): Promise<NextResponse<StartActivityResponseData>> {
@@ -14,7 +14,7 @@ export async function POST(request: Request): Promise<NextResponse<StartActivity
     const body = (await request.json()) as OptionsSchema;
     body.endTime = new Date();
 
-    const accessToken = await getSoudCloudeTokenFromCookie();
+    const accessToken = await getSoundCloudTokenFromCookie();
 
     if (!accessToken) {
       return NextResponse.json({
