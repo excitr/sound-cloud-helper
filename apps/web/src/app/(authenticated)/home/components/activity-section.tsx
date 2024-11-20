@@ -10,8 +10,9 @@ import { type APIResponse, followUserData } from '@/app/api/auth/follow/actions'
 import { DAILY_MAX_FOLLOW_LIMIT, SOUNDCLOUD_FOLLOW_LIMIT } from '@/app/modules/constant';
 import { type APITokenResponse, generateSoundCloudToken } from '@/app/api/auth/generate-soundcloud-token/actions';
 import { startActivity } from '@/app/api/start-activity/action';
+import { endActivity } from '@/app/api/auth/end-activity/action';
 import { initialOptions, useHomePageContext } from '../context';
-import { EndActivityResponse, StartActivitySchema } from '../type';
+import { StartActivitySchema } from '../type';
 
 export const verifySoundCouldToken = async (): Promise<APITokenResponse> => {
   const response: APITokenResponse = await generateSoundCloudToken();
@@ -180,24 +181,29 @@ export default function ActivitySection(): React.JSX.Element {
         result.lastLogData?.cursor,
       );
 
-      const endActivityData = {
+      const endActivityData: {
+        completedCount: number;
+        isStatus: 'Y' | 'N';
+        isSuccess: 'Success' | 'Failure';
+        followUserId: string;
+        lastFollowUserId: string;
+        id: string;
+        cursor: string;
+        endTime: Date;
+      } = {
         completedCount: totalCount,
-        isStatus: 'N',
-        isSuccess: totalCount === options.followCount ? 'Success' : 'Failure',
+        isStatus: 'N', // Correct type
+        isSuccess: totalCount === options.followCount ? 'Success' : 'Failure', // Correct type
         followUserId: String(result.scrapUrlData.id),
         lastFollowUserId: String(currentFollowedId),
         id: result.currentLogData.id,
         cursor: String(currentCursor),
+        endTime: new Date(),
       };
-      const endActivityResponse = await fetch('/api/auth/end-activity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(endActivityData),
-      });
 
-      const { success } = EndActivityResponse.parse(await endActivityResponse.json());
+      const endActivityResponse = await endActivity(endActivityData);
 
-      if (success) {
+      if (endActivityResponse.success) {
         await fetchProfileData();
         toast.success(`Followed ${String(totalCount)} users`);
       }

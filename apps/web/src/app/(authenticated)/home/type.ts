@@ -195,6 +195,12 @@ export const ActivityAPISchema = z.object({
   data: z.array(LogActivityData).optional(),
 });
 
+export const EndActivityAPIResonseSchema = z.object({
+  success: z.boolean(),
+  id: z.string().optional().nullable(),
+  error: z.string().optional().nullable(),
+});
+
 export type FollowersResponseData = z.infer<typeof FollowersResponseSchema>;
 
 export type FollowUserResponseData = z.infer<typeof FollowerSchema>;
@@ -210,3 +216,5 @@ export type StartActivityResponseData = z.infer<typeof StartActivitySchema>;
 export type HomeAPIResponseData = z.infer<typeof HomeAPIResponseSchema>;
 
 export type ActivityAPIResponse = z.infer<typeof ActivityAPISchema>;
+
+export type EndActivityAPIResponse = z.infer<typeof EndActivityAPIResonseSchema>;
