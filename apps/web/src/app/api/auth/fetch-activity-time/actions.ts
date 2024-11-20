@@ -15,8 +15,8 @@ function calculateActivityTime(data: Activity[]): string {
   let totalSeconds = 0;
 
   data.forEach((activity) => {
-    const startTime = new Date(activity.startTime);
-    const endTime = new Date(activity.endTime);
+    const startTime = activity.startTime;
+    const endTime = activity.endTime;
 
     if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
       throw new Error(`Invalid date format in activity: ${JSON.stringify(activity)}`);

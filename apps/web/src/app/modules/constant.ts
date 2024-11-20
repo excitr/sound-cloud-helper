@@ -9,6 +9,7 @@ export const REFRESH_GRANT_TYPE = 'refresh_token';
 export const USER_ID = 'sound_cloud_helper_user_id';
 export const SOUNDCLOUD_ACCOUNT_ID = 'sound_cloud_account_id';
 export const SOUNDCLOUD_ME_URL = 'https://api.soundcloud.com/me';
+export const SOUNDCLOUD_FOLLOWINGS_URL = 'https://api.soundcloud.com/me/followings';
 export const SOUNDCLOUD_REDIRECT_URL = '/api/auth/soundcloud/callback';
 export const SOUNDCLOUD_RESOLVE_URL = 'https://api.soundcloud.com/resolve';
 export const SOUNDCLOUD_USERS_FOLLOWERS_URL = 'https://api.soundcloud.com/users';

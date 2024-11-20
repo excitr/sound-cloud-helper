@@ -137,7 +137,8 @@ export const FollowerSchema = z.object({
 
 export const FollowersResponseSchema = z.object({
   collection: z.array(FollowerSchema),
-  next_href: z.string().url().nullable(),
+  //next_href: z.string(),
+  next_href: z.string().regex(/[?&]cursor=\d+/, { message: 'next_href must contain a valid cursor query parameter.' }),
 });
 
 const ScrapUrlDataSchema = z.object({

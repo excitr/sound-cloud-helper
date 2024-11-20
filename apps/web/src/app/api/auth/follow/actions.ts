@@ -1,7 +1,7 @@
 'use server';
 
 import { logger } from '@repo/logger';
-import { SOUNDCLOUD_ME_URL } from '@/app/modules/constant';
+import { SOUNDCLOUD_FOLLOWINGS_URL } from '@/app/modules/constant';
 import { FollowerSchema, type FollowResponseData } from '@/app/(authenticated)/home/type';
 import { getSoundCloudTokenFromCookie } from '@/app/lib/common-functions';
 
@@ -20,7 +20,7 @@ export const followUserData = async (id: string): Promise<APIResponse> => {
     }
 
     const followUserId = String(id);
-    const url = `${SOUNDCLOUD_ME_URL}/followings/${followUserId}`;
+    const url = `${SOUNDCLOUD_FOLLOWINGS_URL}/${followUserId}`;
 
     const response = await fetch(url, {
       method: 'PUT',

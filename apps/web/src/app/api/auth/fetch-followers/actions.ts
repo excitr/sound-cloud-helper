@@ -47,11 +47,11 @@ export const fetchFollowerData = async (
     }
 
     const parsedData = FollowersResponseSchema.parse(await response.json());
-    // const regex = /(?:[?&]cursor=(?<cursor>\d+))/;
-    const regex = /[?&]cursor=(?<cursor>\d+)/;
-    const match = regex.exec(parsedData.next_href ?? '');
 
-    const cursor = match ? match[1] : '';
+    const regex = /[?&]cursor=(?<cursor>\d+)/;
+    const match = regex.exec(parsedData.next_href);
+
+    const cursor = match ? match[1] : null;
     return { success: true, data: parsedData, currentCursor: String(cursor) };
   } catch (error) {
     if (error instanceof Error) {
