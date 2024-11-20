@@ -12,7 +12,10 @@ import { fetchScrapUserData } from './action';
 export async function POST(request: Request): Promise<NextResponse<StartActivityResponseData>> {
   try {
     const body = (await request.json()) as OptionsSchema;
-    body.endTime = new Date();
+    const extendedBody = {
+      ...body,
+      endTime: new Date(),
+    };
 
     const accessToken = await getSoundCloudTokenFromCookie();
 
@@ -55,7 +58,7 @@ export async function POST(request: Request): Promise<NextResponse<StartActivity
       },
     });
 
-    const completedCountSum = todayLogActivities.reduce((sum, record) => sum + (record.completedCount || 0), 0);
+    const completedCountSum = todayLogActivities.reduce((sum, record) => sum + record.completedCount, 0);
 
     const lastLogData = todayLogActivities.length > 0 ? todayLogActivities[0] : null;
 
@@ -72,7 +75,7 @@ export async function POST(request: Request): Promise<NextResponse<StartActivity
 
     const data: Prisma.LogActivityCreateInput = {
       activityType: 'Follow',
-      inputCount: Number(body.followCount),
+      inputCount: Number(extendedBody.followCount),
       isStatus: 'Y',
       followUserId: '',
       accountId,
@@ -83,7 +86,7 @@ export async function POST(request: Request): Promise<NextResponse<StartActivity
       data,
     });
 
-    const result = await fetchScrapUserData(accessToken, body.scrapUrl);
+    const result = await fetchScrapUserData(accessToken, extendedBody.scrapUrl);
 
     const formattedCurrentLogData = {
       ...currentLogData,

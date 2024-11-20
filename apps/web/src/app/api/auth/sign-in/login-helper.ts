@@ -2,10 +2,10 @@ import { type JwtPayload, sign, verify } from 'jsonwebtoken';
 import { env } from '@/env.mjs';
 
 export const generateAccessToken = (user: { id: number; email: string }): string =>
-  sign({ id: user.id, email: user.email }, env.ACCESS_TOKEN_SECRET, { expiresIn: '520m' });
+  sign({ id: user.id, email: user.email }, env.ACCESS_TOKEN_SECRET, { expiresIn: '15778800' });
 
 export const generateRefreshToken = (user: { id: number; email: string }): string =>
-  sign({ id: user.id, email: user.email }, env.REFRESH_TOKEN_SECRET, { expiresIn: '520m' });
+  sign({ id: user.id, email: user.email }, env.REFRESH_TOKEN_SECRET, { expiresIn: '15778800' });
 
 export const verifyAccessToken = (token: string): string | JwtPayload => verify(token, env.ACCESS_TOKEN_SECRET);
 
