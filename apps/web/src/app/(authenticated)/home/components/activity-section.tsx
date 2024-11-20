@@ -29,7 +29,7 @@ export default function ActivitySection(): React.JSX.Element {
   const handleActivity = async (): Promise<void> => {
     await fetchProfileData();
 
-    const followLimit = Number(options.followCount) + Number(profileData.followings_count);
+    const followLimit = Number(options.followCount) + Number(profileData.followingsCount);
 
     if (followLimit >= SOUNDCLOUD_FOLLOW_LIMIT) {
       toast.error('Your Following limit is exceed');
