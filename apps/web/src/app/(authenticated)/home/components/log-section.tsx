@@ -50,5 +50,3 @@ export default function LogSection(): React.JSX.Element {
     </Box>
   );
 }
-
-// Mock log entries data

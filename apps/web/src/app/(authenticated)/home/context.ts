@@ -26,19 +26,19 @@ export interface HomePageContextType {
   setLogData: Dispatch<SetStateAction<LogActivitySchemaData[]>>;
 }
 
-export const initiallyOptions = {
-  scrap_url: '',
+export const initialOptions = {
+  scrapUrl: '',
   follow: 'follow',
-  pro_follow: 'pro_follow',
+  proFollow: 'pro_follow',
   unfollow: false,
-  passive_follow: false,
-  manual_follow: false,
-  schedule_activity: false,
-  schedule_time: '',
+  passiveFollow: false,
+  manualFollow: false,
+  scheduleActivity: false,
+  scheduleTime: '',
   cycle: false,
   max: false,
-  follow_count: 0,
-  unfollow_count: 0,
+  followCount: 0,
+  unfollowCount: 0,
 };
 
 const HomePageContext = createContext<HomePageContextType>({
@@ -50,18 +50,18 @@ const HomePageContext = createContext<HomePageContextType>({
   },
   activity: false,
   options: {
-    scrap_url: '',
+    scrapUrl: '',
     follow: 'Follow',
-    pro_follow: 'pro_follow',
+    proFollow: 'pro_follow',
     unfollow: false,
-    passive_follow: false,
-    manual_follow: false,
-    schedule_activity: false,
-    schedule_time: '',
+    passiveFollow: false,
+    manualFollow: false,
+    scheduleActivity: false,
+    scheduleTime: '',
     cycle: false,
     max: false,
-    follow_count: 0,
-    unfollow_count: 0,
+    followCount: 0,
+    unfollowCount: 0,
   },
   setOptions: () => {
     // no-op function as placeholder

@@ -15,21 +15,20 @@ export type MeDataSchema = z.infer<typeof MeData>;
 export type TimeDataSchema = z.infer<typeof TimeData>;
 
 export const Options = z.object({
-  scrap_url: z.string(),
+  scrapUrl: z.string(),
   follow: z.string(),
-  pro_follow: z.string(),
+  proFollow: z.string(),
   unfollow: z.boolean(),
-  passive_follow: z.boolean(),
-  manual_follow: z.boolean(),
-  schedule_activity: z.boolean(),
-  schedule_time: z.string(),
+  passiveFollow: z.boolean(),
+  manualFollow: z.boolean(),
+  scheduleActivity: z.boolean(),
+  scheduleTime: z.string(),
   cycle: z.boolean(),
   max: z.boolean(),
-  follow_count: z.number(),
-  unfollow_count: z.number(),
+  followCount: z.number(),
+  unfollowCount: z.number(),
 });
 
-// Create a TypeScript type from the Zod schema
 export type OptionsSchema = z.infer<typeof Options>;
 
 export const EndActivity = z.object({
@@ -40,8 +39,7 @@ export const EndActivity = z.object({
   endTime: z.date(),
   cursor: z.string(),
   isStatus: z.enum(['Y', 'N']),
-  isSuccess: z.enum(['Success', 'UnSuccess']),
-  nextHref: z.string().nullable(),
+  isSuccess: z.enum(['Success', 'Failure']),
 });
 
 export type EndActivitySchema = z.infer<typeof EndActivity>;
@@ -56,9 +54,8 @@ export const initiallyLogData = {
   completedCount: 0,
   startTime: null,
   endTime: null,
-  isSuccess: 'UnSuccess',
+  isSuccess: 'Failure',
   isStatus: 'N',
-  nextHref: '',
 };
 
 export const LogActivitySchema = z.object({
@@ -73,7 +70,6 @@ export const LogActivitySchema = z.object({
   endTime: z.union([z.date(), z.string()]).nullable(),
   isSuccess: z.string().nullable(),
   isStatus: z.string().nullable(),
-  nextHref: z.string().nullable(),
 });
 
 export const EndActivityResponse = z.object({
@@ -125,7 +121,7 @@ export const FollowerSchema = z.object({
   comments_count: z.number().nullable(),
   online: z.boolean().nullable(),
   likes_count: z.number().nullable(),
-  playlist_count: z.number().optional().nullable(), // Make this optional
+  playlist_count: z.number().optional().nullable(),
   subscriptions: z.array(SubscriptionSchema),
 });
 
@@ -148,7 +144,7 @@ const LogDataSchema = z.object({
   lastFollowUserId: z.string().nullable(),
   cursor: z.string().nullable(),
   completedCount: z.number(),
-  isSuccess: z.union([z.boolean(), z.enum(['Success', 'UnSuccess']).nullable()]),
+  isSuccess: z.union([z.boolean(), z.enum(['Success', 'Failure']).nullable()]),
   isStatus: z.enum(['Y', 'N']),
   startTime: z.string().datetime(),
   endTime: z.string().datetime().nullable(),
@@ -168,11 +164,8 @@ export const HomeAPIResponseSchema = z.object({
   success: z.boolean(),
   error: z.string().nullable().optional(),
 });
-export const ScrapUserErrorSchema = z.object({
-  error: z.string(),
-});
 
-export const VerifyTokenResponceSchema = z.object({
+export const VerifyTokenResponseSchema = z.object({
   success: z.boolean(),
   error: z.string().optional(),
 });
@@ -185,7 +178,7 @@ export type FollowersResponseData = z.infer<typeof FollowersResponseSchema>;
 
 export type FollowUserResponseData = z.infer<typeof FollowerSchema>;
 
-export type VerifyTokenResponceData = z.infer<typeof VerifyTokenResponceSchema>;
+export type VerifyTokenResponseData = z.infer<typeof VerifyTokenResponseSchema>;
 
 export type LogActivitySchemaData = z.infer<typeof LogActivitySchema>;
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react'; // Explicitly importing React
+import React from 'react';
 import { Box, TextField, Typography } from '@mui/material';
 import RadioButtonGroup from '@/components/form/mui-radio-button';
 import { rem } from '@/theme';
@@ -10,9 +10,13 @@ export default function OptionsSection(): React.JSX.Element {
   const { setOptions, options, activity } = useHomePageContext();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    let val: string | number | null = event.target.value;
+    if (event.target.name === 'followCount') {
+      val = Number(event.target.value);
+    }
     setOptions((prevOptions) => ({
       ...prevOptions,
-      [event.target.name]: event.target.value,
+      [event.target.name]: val,
     }));
   };
 
@@ -26,8 +30,8 @@ export default function OptionsSection(): React.JSX.Element {
           Scrape URL:
         </Typography>
         <TextField
-          name="scrap_url"
-          value={options.scrap_url}
+          name="scrapUrl"
+          value={options.scrapUrl}
           onChange={handleChange}
           variant="outlined"
           disabled={activity}
@@ -59,10 +63,10 @@ export default function OptionsSection(): React.JSX.Element {
 
         <TextField
           variant="outlined"
-          name="follow_count"
+          name="followCount"
           disabled={activity}
           onChange={handleChange}
-          value={options.follow_count}
+          value={options.followCount}
           type="number"
           sx={{
             width: '7.75rem',
@@ -77,7 +81,7 @@ export default function OptionsSection(): React.JSX.Element {
 
       <RadioButtonGroup
         name="followGroup"
-        selectedValue={options.pro_follow}
+        selectedValue={options.proFollow}
         onChange={handleChange}
         options={[{ value: 'ProUsers', label: 'Only follow PRO users' }]}
         sx={{ my: 1, ml: 8 }}

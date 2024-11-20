@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { logger } from '@repo/logger';
 import { Box } from '@mui/material';
 import { fetchMeData } from '@/app/api/auth/home/actions';
+import { type APITokenResponse } from '@/app/api/auth/generate-soundcloud-token/actions';
 import ActivitySection, { verifySoundCouldToken } from './components/activity-section';
 import Layout from './components/layout';
 import LogSection from './components/log-section';
@@ -15,7 +16,6 @@ import {
   MeData,
   type MeDataSchema,
   type OptionsSchema,
-  type VerifyTokenResponceData,
   type LogActivitySchemaData,
   TimeData,
   initiallyLogData,
@@ -33,23 +33,23 @@ export default function HomePage(): React.JSX.Element {
   });
   const [activity, setActivity] = useState<boolean>(false);
   const [options, setOptions] = useState<OptionsSchema>({
-    scrap_url: '',
+    scrapUrl: '',
     follow: 'follow',
-    pro_follow: 'pro_follow',
+    proFollow: 'pro_follow',
     unfollow: false,
-    passive_follow: false,
-    manual_follow: false,
-    schedule_activity: false,
-    schedule_time: '',
+    passiveFollow: false,
+    manualFollow: false,
+    scheduleActivity: false,
+    scheduleTime: '',
     cycle: false,
     max: false,
-    follow_count: 0,
-    unfollow_count: 0,
+    followCount: 0,
+    unfollowCount: 0,
   });
 
   const fetchProfileData = async (): Promise<void> => {
     try {
-      const tokenData: VerifyTokenResponceData | undefined = await verifySoundCouldToken();
+      const tokenData: APITokenResponse | undefined = await verifySoundCouldToken();
 
       if (tokenData.success) {
         const { data, success } = await fetchMeData();

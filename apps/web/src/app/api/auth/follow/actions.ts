@@ -1,9 +1,8 @@
 'use server';
 
-//import { logger } from '@repo/logger';
 import { logger } from '@repo/logger';
 import { SOUNDCLOUD_ME_URL } from '@/app/modules/constant';
-import { FollowerSchema, type FollowResponseData } from '@/app/(unauthenticated)/home/type';
+import { FollowerSchema, type FollowResponseData } from '@/app/(authenticated)/home/type';
 import { getSoudCloudeTokenFromCookie } from '@/app/lib/common-functions';
 
 export interface APIResponse {
@@ -15,7 +14,6 @@ export interface APIResponse {
 export const followUserData = async (id: string): Promise<APIResponse> => {
   try {
     const accessToken = await getSoudCloudeTokenFromCookie();
-
     if (!accessToken) {
       logger.error('No access token found.');
       return { success: false, error: 'No access token found' };
@@ -35,7 +33,6 @@ export const followUserData = async (id: string): Promise<APIResponse> => {
     if (!response.ok) {
       throw new Error(`Error when following user: ${response.statusText}`);
     }
-
     const parsedData = FollowerSchema.parse(await response.json());
 
     return { success: true, data: parsedData };

@@ -37,18 +37,3 @@ export const getAccountIdFromCookie = async (): Promise<string | null> => {
 
   return Promise.resolve(null);
 };
-
-// export const generateAccessToken = (user: { id: number; email: string }): string =>
-//   sign({ id: user.id, email: user.email }, env.ACCESS_TOKEN_SECRET, { expiresIn: '60m' });
-
-// export const generateRefreshToken = (user: { id: number; email: string }): string =>
-//   sign({ id: user.id, email: user.email }, env.REFRESH_TOKEN_SECRET, { expiresIn: '131400m' });
-
-// export const verifyAccessToken = (token: string): string | JwtPayload => verify(token, env.ACCESS_TOKEN_SECRET);
-
-// export const verifyRefreshToken = (token: string): string | JwtPayload => verify(token, env.REFRESH_TOKEN_SECRET);
-
-// export const encodedSoundCloudToken = (user: { access_token: string }): string =>
-//   sign({ access_token: user.access_token }, env.ACCESS_TOKEN_SECRET);
-
-// export const decodedSoundCloudToken = (token: string): string | JwtPayload => verify(token, env.ACCESS_TOKEN_SECRET);

@@ -549,20 +549,19 @@ model LogActivity {
   accountId        String       @map("account_id")
   followUserId     String?      @map("follow_user_id")
   lastFollowUserId String?      @map("last_follow_user_id")
-  cursor           String?      @map("cursor")
+  cursor           String?
   completedCount   Int          @default(0) @map("completed_count")
   isSuccess        Success?     @map("is_success")
   isStatus         Status       @map("is_status")
-  nextHref         String?      @map("next_href")
-  startTime        DateTime     @default(now()) @map("start_time")
-  endTime          DateTime     @default(now()) @map("end_time")
+  startTime        DateTime     @map("start_time")
+  endTime          DateTime     @map("end_time")
 
   @@map("log_activity")
 }
 
 enum Success {
   Success
-  UnSuccess
+  Failure
 }
 
 enum Status {

@@ -17,7 +17,6 @@ function EmailDropdown({
   handleMenuClose,
   handleSignOut,
 }: EmailDropdownProps): React.JSX.Element {
-  // Use React.JSX.Element
   const [isHovered, setIsHovered] = useState(false);
 
   return (

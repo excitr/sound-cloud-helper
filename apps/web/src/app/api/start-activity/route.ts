@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 import { type LogActivity, prisma, type Prisma } from '@repo/database';
 import { logger } from '@repo/logger';
 import { startOfDay, endOfDay } from 'date-fns';
-import type { OptionsSchema, StartActivityResponseData } from '@/app/(unauthenticated)/home/type';
+import type { OptionsSchema, StartActivityResponseData } from '@/app/(authenticated)/home/type';
 import { DAILY_MAX_FOLLOW_LIMIT } from '@/app/modules/constant';
 import { getAccountIdFromCookie, getSoudCloudeTokenFromCookie } from '@/app/lib/common-functions';
 import { fetchScrapUserData } from './action';
@@ -12,6 +12,7 @@ import { fetchScrapUserData } from './action';
 export async function POST(request: Request): Promise<NextResponse<StartActivityResponseData>> {
   try {
     const body = (await request.json()) as OptionsSchema;
+    body.endTime = new Date();
 
     const accessToken = await getSoudCloudeTokenFromCookie();
 
@@ -71,21 +72,23 @@ export async function POST(request: Request): Promise<NextResponse<StartActivity
 
     const data: Prisma.LogActivityCreateInput = {
       activityType: 'Follow',
-      inputCount: Number(body.follow_count),
+      inputCount: Number(body.followCount),
       isStatus: 'Y',
       followUserId: '',
       accountId,
+      startTime: new Date(),
+      endTime: new Date(),
     };
     const currentLogData: LogActivity = await prisma.logActivity.create({
       data,
     });
 
-    const result = await fetchScrapUserData(accessToken, body.scrap_url);
+    const result = await fetchScrapUserData(accessToken, body.scrapUrl);
 
     const formattedCurrentLogData = {
       ...currentLogData,
-      startTime: currentLogData.startTime.toISOString(), // Convert to ISO string
-      endTime: currentLogData.endTime.toISOString() || null, // Handle nullable endTime
+      startTime: currentLogData.startTime.toISOString(),
+      endTime: currentLogData.endTime.toISOString() || null,
     };
     return NextResponse.json({
       success: true,

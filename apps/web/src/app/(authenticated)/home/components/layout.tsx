@@ -27,12 +27,7 @@ function Layout(): React.JSX.Element {
     <AppBar position="fixed" sx={{ backgroundColor: '#F4F4F4', color: '#444', py: 1 }}>
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <Box display="flex" alignItems="center">
-          <Image
-            src="/logo.svg"
-            alt="Logo"
-            width={120} // Set width and height
-            height={32}
-          />
+          <Image src="/logo.svg" alt="Logo" width={120} height={32} />
         </Box>
 
         <Box display="flex" gap={4} alignItems="center" fontWeight={400} textTransform="none">

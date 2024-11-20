@@ -3,7 +3,7 @@
 import { prisma } from '@repo/database';
 import { logger } from '@repo/logger';
 import { getAccountIdFromCookie } from '@/app/lib/common-functions';
-import { type LogActivitySchemaData } from '@/app/(unauthenticated)/home/type';
+import { type LogActivitySchemaData } from '@/app/(authenticated)/home/type';
 
 export interface APIResponse {
   success: boolean;
@@ -22,12 +22,10 @@ interface Activity {
 function calculateActivityTime(data: Activity[]): string {
   let totalSeconds = 0;
 
-  // Step 1: Calculate total seconds for each activity
   data.forEach((activity) => {
     const startTime = new Date(activity.startTime);
     const endTime = new Date(activity.endTime);
 
-    // Ensure both dates are valid
     if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
       throw new Error(`Invalid date format in activity: ${JSON.stringify(activity)}`);
     }
@@ -36,13 +34,11 @@ function calculateActivityTime(data: Activity[]): string {
     totalSeconds += diffInSeconds;
   });
 
-  // Step 2: Convert total seconds to days, hours, and minutes
   const days = Math.floor(totalSeconds / (24 * 3600));
   const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = Math.floor(totalSeconds % 60);
 
-  // Step 3: Format the result based on the time duration
   let result = '';
   if (days > 0) {
     result += `${String(days)} day(s) `;

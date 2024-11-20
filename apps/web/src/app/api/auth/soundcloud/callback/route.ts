@@ -36,13 +36,13 @@ type MeData = z.infer<typeof MeDataSchema>;
 type TokenInfo = z.infer<typeof TokenInfoSchema>;
 
 const getUserIdFromCookie = async (): Promise<number | null> => {
-  const cookieStore = await cookies(); // Await the promise returned by cookies()
+  const cookieStore = await cookies();
   const userData = cookieStore.get(TOKEN_KEY);
 
   if (userData) {
     const decoded = verify(userData.value, env.ACCESS_TOKEN_SECRET) as CustomJwtPayload;
 
-    return decoded.id; // Directly return the user ID
+    return decoded.id;
   }
 
   return null;

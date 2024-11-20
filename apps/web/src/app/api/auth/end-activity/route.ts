@@ -3,7 +3,7 @@
 import { prisma } from '@repo/database';
 import { logger } from '@repo/logger';
 import { NextResponse } from 'next/server';
-import type { EndActivitySchema } from '@/app/(unauthenticated)/home/type';
+import type { EndActivitySchema } from '@/app/(authenticated)/home/type';
 import { getAccountIdFromCookie } from '@/app/lib/common-functions';
 
 export interface EndActiviAPIResponse {
