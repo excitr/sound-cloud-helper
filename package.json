@@ -17,11 +17,11 @@
   "devDependencies": {
     "@repo/lintstaged-config": "workspace:*",
     "cross-env": "^7.0.3",
-    "husky": "^9.1.6",
+    "husky": "^9.1.7",
     "lint-staged": "^15.2.10",
-    "prettier": "^3.3.3",
-    "prettier-plugin-tailwindcss": "^0.6.8",
-    "turbo": "^2.2.3"
+    "prettier": "^3.4.1",
+    "prettier-plugin-tailwindcss": "^0.6.9",
+    "turbo": "^2.3.3"
   },
   "packageManager": "pnpm@9.10.0",
   "engines": {
@@ -29,6 +29,6 @@
   },
   "name": "with-tailwind",
   "dependencies": {
-    "@prisma/client": "^5.21.1"
+    "@prisma/client": "^6.0.0"
   }
 }

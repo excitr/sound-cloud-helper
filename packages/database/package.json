@@ -30,7 +30,7 @@
     "update": "pnpm update --latest"
   },
   "dependencies": {
-    "@prisma/client": "^5.21.1",
+    "@prisma/client": "^6.0.0",
     "@prisma/extension-read-replicas": "^0.4.0",
     "@repo/logger": "workspace:*",
     "@repo/mode": "workspace:*",
@@ -42,13 +42,13 @@
     "@repo/eslint-config": "workspace:*",
     "@repo/lintstaged-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "@types/node": "^22.8.6",
-    "@types/ws": "^8.5.12",
-    "concurrently": "^9.0.1",
-    "prisma": "^5.21.1",
+    "@types/node": "^22.10.1",
+    "@types/ws": "^8.5.13",
+    "concurrently": "^9.1.0",
+    "prisma": "^6.0.0",
     "rimraf": "^6.0.1",
     "tsup": "^8.3.5",
     "tsx": "^4.19.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.7.2"
   }
 }
